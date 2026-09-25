@@ -320,7 +320,7 @@ def login():
 
     elif (
         email == "operator@polar.local"
-        and password == "operator123"
+        and password == "operator123@"
     ):
 
         session["logged_in"] = True
