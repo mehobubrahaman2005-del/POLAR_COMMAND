@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Inventory Management - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <!-- Header -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Inventory Management</h1>
+
+            <p style="color:#91a8ba;">
+                Monitor and manage station resources
+            </p>
+
+        </div>
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- Add Inventory -->
+
+    <div class="panel">
+
+        <h2>Add Inventory Item</h2>
+
+        <form id="inventory-add-form"
+              action="/inventory/add"
+              method="POST"
+              style="margin-top:20px;">
+
+            <div class="form-grid">
+
+                <input type="text"
+                       name="item_name"
+                       placeholder="Item Name"
+                       required>
+
+                <input type="text"
+                       name="station"
+                       placeholder="Station"
+                       required>
+
+                <input type="number"
+                       name="quantity"
+                       placeholder="Quantity"
+                       step="0.01"
+                       required>
+
+                <input type="number"
+                       name="minimum_quantity"
+                       placeholder="Minimum Quantity"
+                       step="0.01"
+                       required>
+
+                <input type="number"
+                       name="daily_consumption"
+                       placeholder="Daily Consumption"
+                       step="0.01"
+                       required>
+
+                <input type="text"
+                       name="unit"
+                       placeholder="Unit (L / Unit / kg)"
+                       required>
+
+            </div>
+
+            <button type="submit"
+                    class="primary-btn">
+
+                + Add Item
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Inventory Table -->
+
+    <div class="panel">
+
+        <h2>Current Inventory</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Item</th>
+
+                        <th>Station</th>
+
+                        <th>Quantity</th>
+
+                        <th>Minimum</th>
+
+                        <th>Daily Use</th>
+
+                        <th>Days Remaining</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="inventory-table-body">
+
+                {% for item in inventory %}
+
+                    {% if item["daily_consumption"] > 0 %}
+
+                        {% set days =
+                            item["quantity"] /
+                            item["daily_consumption"] %}
+
+                    {% else %}
+
+                        {% set days = 999 %}
+
+                    {% endif %}
+
+
+                    <tr data-inventory-id="{{ item['id'] }}">
+
+                        <td>
+
+                            <strong>
+                                {{ item["item_name"] }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["station"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["quantity"] }}
+                            {{ item["unit"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["minimum_quantity"] }}
+                            {{ item["unit"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["daily_consumption"] }}
+                            {{ item["unit"] }}/day
+
+                        </td>
+
+
+                        <td>
+
+                            {{ "%.1f"|format(days) }}
+                            days
+
+                        </td>
+
+
+                        <td>
+
+                            {% if days <= 3 %}
+
+                                <span class="status red">
+
+                                    ● Critical
+
+                                </span>
+
+                            {% elif item["quantity"]
+                                  <= item["minimum_quantity"] %}
+
+                                <span class="status yellow">
+
+                                    ● Low
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="status green">
+
+                                    ● Normal
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <form class="inventory-update-form"
+                                  action="/inventory/update/{{ item['id'] }}"
+                                  method="POST"
+                                  style="display:inline;">
+
+                                <input type="number"
+                                       name="quantity"
+                                       value="{{ item['quantity'] }}"
+                                       step="0.01"
+                                       style="width:80px;">
+
+                                <button type="submit"
+                                        class="primary-btn">
+
+                                    Update
+
+                                </button>
+
+                            </form>
+
+
+                            <a href="/inventory/delete/{{ item['id'] }}"
+                               class="inventory-delete-link"
+                               onclick="return confirm('Delete this inventory item?');"
+                               style="color:#f44336;
+                                      margin-left:10px;
+                                      text-decoration:none;">
+
+                                Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="8"
+                            style="text-align:center;
+                                   color:#91a8ba;">
+
+                            No inventory items found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     REQUIRED JAVASCRIPT
+===================================================== -->
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/offline.js') }}"></script>
+
+
+<!-- =====================================================
+     INVENTORY OFFLINE CRUD
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        setupInventoryOfflineMode();
+        checkCriticalInventoryNotifications();
+
+    }
+);
+
+
+async function setupInventoryOfflineMode() {
+
+    const addForm =
+        document.getElementById(
+            "inventory-add-form"
+        );
+
+
+    /*
+     * -----------------------------------------------------
+     * ADD INVENTORY
+     * -----------------------------------------------------
+     */
+
+    if (addForm) {
+
+        addForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                if (navigator.onLine) {
+
+                    /*
+                     * Internet available.
+                     * Keep existing Flask behaviour.
+                     */
+
+                    return;
+
+                }
+
+
+                /*
+                 * Stop normal form submission.
+                 */
+
+                event.preventDefault();
+
+
+                const formData =
+                    new FormData(addForm);
+
+
+                const itemName =
+                    formData.get("item_name");
+
+                const station =
+                    formData.get("station");
+
+                const quantity =
+                    Number(
+                        formData.get("quantity")
+                    );
+
+                const minimumQuantity =
+                    Number(
+                        formData.get(
+                            "minimum_quantity"
+                        )
+                    );
+
+                const dailyConsumption =
+                    Number(
+                        formData.get(
+                            "daily_consumption"
+                        )
+                    );
+
+                const unit =
+                    formData.get("unit");
+
+
+                /*
+                 * Calculate risk locally.
+                 */
+
+                const riskLevel =
+                    calculateLocalRisk(
+                        quantity,
+                        minimumQuantity,
+                        dailyConsumption
+                    );
+
+
+                await addOfflineInventory(
+                    itemName,
+                    station,
+                    quantity,
+                    minimumQuantity,
+                    dailyConsumption,
+                    unit,
+                    riskLevel
+                );
+
+
+                /*
+                 * Clear form.
+                 */
+
+                addForm.reset();
+
+
+                /*
+                 * Reload local inventory table.
+                 */
+
+                await renderOfflineInventory();
+
+
+                showOfflineMessage(
+                    "Inventory item saved locally."
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * UPDATE INVENTORY
+     * -----------------------------------------------------
+     */
+
+    document
+        .querySelectorAll(
+            ".inventory-update-form"
+        )
+        .forEach(
+            function (form) {
+
+                form.addEventListener(
+                    "submit",
+                    async function (event) {
+
+                        if (navigator.onLine) {
+
+                            /*
+                             * Keep existing Flask update.
+                             */
+
+                            return;
+
+                        }
+
+
+                        event.preventDefault();
+
+
+                        const row =
+                            form.closest("tr");
+
+
+                        const id =
+                            Number(
+                                row.dataset
+                                   .inventoryId
+                            );
+
+
+                        const quantityInput =
+                            form.querySelector(
+                                'input[name="quantity"]'
+                            );
+
+
+                        const quantity =
+                            Number(
+                                quantityInput.value
+                            );
+
+
+                        /*
+                         * Read existing row data.
+                         */
+
+                        const currentData =
+                            await getOfflineInventory(
+                                id
+                            );
+
+
+                        if (!currentData) {
+
+                            showOfflineMessage(
+                                "Inventory record not found locally."
+                            );
+
+                            return;
+
+                        }
+
+
+                        const riskLevel =
+                            calculateLocalRisk(
+                                quantity,
+                                Number(
+                                    currentData.minimum_quantity
+                                ),
+                                Number(
+                                    currentData.daily_consumption
+                                )
+                            );
+
+                        const baseQuantity =
+                        Number(currentData.quantity);
+
+                        await updateOfflineInventory(
+                            id,
+                            currentData.item_name,
+                            currentData.station,
+                            quantity,
+                            Number(
+                                currentData.minimum_quantity
+                            ),
+                            Number(
+                                currentData.daily_consumption
+                            ),
+                            currentData.unit,
+                            riskLevel
+                        );
+
+
+                        await renderOfflineInventory();
+
+
+                        showOfflineMessage(
+                            "Inventory updated locally."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    /*
+     * -----------------------------------------------------
+     * DELETE INVENTORY
+     * -----------------------------------------------------
+     */
+
+    document
+        .querySelectorAll(
+            ".inventory-delete-link"
+        )
+        .forEach(
+            function (link) {
+
+                link.addEventListener(
+                    "click",
+                    async function (event) {
+
+                        if (navigator.onLine) {
+
+                            /*
+                             * Keep existing Flask delete.
+                             */
+
+                            return;
+
+                        }
+
+
+                        event.preventDefault();
+
+
+                        const confirmed =
+                            confirm(
+                                "Delete this inventory item?"
+                            );
+
+
+                        if (!confirmed) {
+
+                            return;
+
+                        }
+
+
+                        const url =
+                            link.getAttribute("href");
+
+
+                        const id =
+                            Number(
+                                url.split("/").pop()
+                            );
+
+
+                        await deleteOfflineInventory(
+                            id
+                        );
+
+
+                        await renderOfflineInventory();
+
+
+                        showOfflineMessage(
+                            "Inventory deleted locally."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    /*
+     * -----------------------------------------------------
+     * IF CURRENTLY OFFLINE
+     * LOAD LOCAL DATA
+     * -----------------------------------------------------
+     */
+
+    if (!navigator.onLine) {
+
+        await renderOfflineInventory();
+
+    }
+
+}
+
+
+/* =========================================================
+   GET ONE LOCAL INVENTORY RECORD
+========================================================= */
+
+function getOfflineInventory(id) {
+
+    return new Promise(
+        async function (resolve, reject) {
+
+            try {
+
+                const db =
+                    await openPolarDatabase();
+
+
+                const transaction =
+                    db.transaction(
+                        "inventory",
+                        "readonly"
+                    );
+
+
+                const store =
+                    transaction.objectStore(
+                        "inventory"
+                    );
+
+
+                const request =
+                    store.get(Number(id));
+
+
+                request.onsuccess =
+                    function () {
+
+                        resolve(
+                            request.result
+                        );
+
+                        db.close();
+
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error
+                        );
+
+                        db.close();
+
+                    };
+
+            } catch (error) {
+
+                reject(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   GET ALL LOCAL INVENTORY
+========================================================= */
+
+function getAllOfflineInventory() {
+
+    return new Promise(
+        async function (resolve, reject) {
+
+            try {
+
+                const db =
+                    await openPolarDatabase();
+
+
+                const transaction =
+                    db.transaction(
+                        "inventory",
+                        "readonly"
+                    );
+
+
+                const store =
+                    transaction.objectStore(
+                        "inventory"
+                    );
+
+
+                const request =
+                    store.getAll();
+
+
+                request.onsuccess =
+                    function () {
+
+                        resolve(
+                            request.result
+                        );
+
+                        db.close();
+
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error
+                        );
+
+                        db.close();
+
+                    };
+
+            } catch (error) {
+
+                reject(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   LOCAL RISK CALCULATION
+========================================================= */
+
+function calculateLocalRisk(
+    quantity,
+    minimumQuantity,
+    dailyConsumption
+) {
+
+    quantity =
+        Number(quantity || 0);
+
+    minimumQuantity =
+        Number(minimumQuantity || 0);
+
+    dailyConsumption =
+        Number(dailyConsumption || 0);
+
+
+    if (quantity <= 0) {
+
+        return "Critical";
+
+    }
+
+
+    let remainingDays;
+
+
+    if (dailyConsumption > 0) {
+
+        remainingDays =
+            quantity /
+            dailyConsumption;
+
+    } else {
+
+        remainingDays = 999;
+
+    }
+
+
+    if (remainingDays <= 3) {
+
+        return "Critical";
+
+    }
+
+
+    if (quantity <= minimumQuantity) {
+
+        return "High";
+
+    }
+
+
+    if (
+        quantity <=
+        minimumQuantity * 1.5
+    ) {
+
+        return "Medium";
+
+    }
+
+
+    return "Low";
+
+}
+
+
+/* =========================================================
+   RENDER OFFLINE INVENTORY TABLE
+========================================================= */
+
+async function renderOfflineInventory() {
+
+    try {
+
+        const inventory =
+            await getAllOfflineInventory();
+
+
+        const tbody =
+            document.getElementById(
+                "inventory-table-body"
+            );
+
+
+        if (!tbody) {
+
+            return;
+
+        }
+
+
+        if (inventory.length === 0) {
+
+            tbody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="8"
+                        style="text-align:center;
+                               color:#91a8ba;">
+
+                        No inventory items found.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        tbody.innerHTML = "";
+
+
+        inventory.forEach(
+            function (item) {
+
+                const quantity =
+                    Number(
+                        item.quantity || 0
+                    );
+
+
+                const minimum =
+                    Number(
+                        item.minimum_quantity || 0
+                    );
+
+
+                const daily =
+                    Number(
+                        item.daily_consumption || 0
+                    );
+
+
+                let days = 999;
+
+
+                if (daily > 0) {
+
+                    days =
+                        quantity / daily;
+
+                }
+
+
+                let statusHTML;
+
+
+                if (days <= 3) {
+
+                    statusHTML = `
+                        <span class="status red">
+                            ● Critical
+                        </span>
+                    `;
+
+                } else if (
+                    quantity <= minimum
+                ) {
+
+                    statusHTML = `
+                        <span class="status yellow">
+                            ● Low
+                        </span>
+                    `;
+
+                } else {
+
+                    statusHTML = `
+                        <span class="status green">
+                            ● Normal
+                        </span>
+                    `;
+
+                }
+
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.dataset.inventoryId =
+                    item.id;
+
+
+                row.innerHTML = `
+
+                    <td>
+                        <strong>
+                            ${escapeHTML(
+                                item.item_name
+                            )}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            item.station
+                        )}
+                    </td>
+
+                    <td>
+                        ${quantity}
+                        ${escapeHTML(
+                            item.unit
+                        )}
+                    </td>
+
+                    <td>
+                        ${minimum}
+                        ${escapeHTML(
+                            item.unit
+                        )}
+                    </td>
+
+                    <td>
+                        ${daily}
+                        ${escapeHTML(
+                            item.unit
+                        )}/day
+                    </td>
+
+                    <td>
+                        ${days.toFixed(1)}
+                        days
+                    </td>
+
+                    <td>
+                        ${statusHTML}
+                    </td>
+
+                    <td>
+
+                        <form
+                            class="inventory-update-form"
+                            style="display:inline;"
+                        >
+
+                            <input
+                                type="number"
+                                name="quantity"
+                                value="${quantity}"
+                                step="0.01"
+                                style="width:80px;"
+                            >
+
+                            <button
+                                type="submit"
+                                class="primary-btn"
+                            >
+                                Update
+                            </button>
+
+                        </form>
+
+
+                        <a
+                            href="#"
+                            class="inventory-delete-link"
+                            data-id="${item.id}"
+                            style="color:#f44336;
+                                   margin-left:10px;
+                                   text-decoration:none;"
+                        >
+                            Delete
+                        </a>
+
+                    </td>
+
+                `;
+
+
+                tbody.appendChild(row);
+
+
+                /*
+                 * Update button
+                 */
+
+                const updateForm =
+                    row.querySelector(
+                        ".inventory-update-form"
+                    );
+
+
+                updateForm.addEventListener(
+                    "submit",
+                    async function (event) {
+
+                        event.preventDefault();
+
+
+                        const newQuantity =
+                            Number(
+                                updateForm.querySelector(
+                                    'input[name="quantity"]'
+                                ).value
+                            );
+
+
+                        const risk =
+                            calculateLocalRisk(
+                                newQuantity,
+                                minimum,
+                                daily
+                            );
+
+
+                        await updateOfflineInventory(
+                            item.id,
+                            item.item_name,
+                            item.station,
+                            newQuantity,
+                            minimum,
+                            daily,
+                            item.unit,
+                            risk
+                        );
+
+
+                        await renderOfflineInventory();
+
+
+                        showOfflineMessage(
+                            "Inventory updated locally."
+                        );
+
+                    }
+                );
+
+
+                /*
+                 * Delete button
+                 */
+
+                const deleteLink =
+                    row.querySelector(
+                        ".inventory-delete-link"
+                    );
+
+
+                deleteLink.addEventListener(
+                    "click",
+                    async function (event) {
+
+                        event.preventDefault();
+
+
+                        const confirmed =
+                            confirm(
+                                "Delete this inventory item?"
+                            );
+
+
+                        if (!confirmed) {
+
+                            return;
+
+                        }
+
+
+                        await deleteOfflineInventory(
+                            item.id
+                        );
+
+
+                        await renderOfflineInventory();
+
+
+                        showOfflineMessage(
+                            "Inventory deleted locally."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Offline inventory render error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SIMPLE HTML ESCAPE
+========================================================= */
+
+function escapeHTML(value) {
+
+    if (value === null ||
+        value === undefined) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
+   OFFLINE MESSAGE
+========================================================= */
+
+function showOfflineMessage(message) {
+
+    const box =
+        document.createElement("div");
+
+
+    box.innerText = message;
+
+
+    box.style.position = "fixed";
+    box.style.bottom = "25px";
+    box.style.right = "25px";
+    box.style.zIndex = "10000";
+    box.style.padding = "12px 18px";
+    box.style.borderRadius = "8px";
+    box.style.background = "#1f6feb";
+    box.style.color = "#ffffff";
+    box.style.fontWeight = "600";
+    box.style.boxShadow =
+        "0 4px 12px rgba(0,0,0,0.25)";
+
+
+    document.body.appendChild(box);
+
+
+    setTimeout(
+        function () {
+
+            box.remove();
+
+        },
+        2500
+    );
+
+}
+
+/* =========================================================
+   CRITICAL INVENTORY NOTIFICATION
+========================================================= */
+
+/* =========================================================
+   CRITICAL INVENTORY NOTIFICATION
+========================================================= */
+
+function checkCriticalInventoryNotifications() {
+
+    const criticalRows =
+        document.querySelectorAll(
+            "#inventory-table-body tr"
+        );
+
+    criticalRows.forEach(function (row) {
+
+        const itemNameElement =
+            row.querySelector("td:first-child strong");
+
+        if (!itemNameElement) {
+            return;
+        }
+
+        const itemName =
+            itemNameElement.innerText.trim();
+
+        const notificationKey =
+            "polar_critical_" + itemName;
+
+        const isCritical =
+            row.querySelector(".status.red") !== null;
+
+        if (isCritical) {
+
+            const alreadyShown =
+                sessionStorage.getItem(
+                    notificationKey
+                );
+
+            if (alreadyShown !== "shown") {
+
+                showPolarNotification(
+                    "🚨 Critical Inventory Alert",
+                    itemName +
+                    " has reached a critical stock level."
+                );
+
+                sessionStorage.setItem(
+                    notificationKey,
+                    "shown"
+                );
+            }
+
+        } else {
+
+            // Reset notification state when
+            // the item returns to a safe level.
+
+            sessionStorage.removeItem(
+                notificationKey
+            );
+        }
+
+    });
+}
+
+</script>
+
+
+</body>
+
+</html>

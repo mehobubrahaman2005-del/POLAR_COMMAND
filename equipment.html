@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Equipment Management - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Equipment Management</h1>
+
+            <p style="color:#91a8ba;">
+                Monitor expedition equipment and operational condition
+            </p>
+
+        </div>
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- Add Equipment -->
+
+    <div class="panel">
+
+        <h2>Add Equipment</h2>
+
+        <form action="/equipment/add"
+              method="POST"
+              style="margin-top:20px;">
+
+            <div class="form-grid">
+
+                <input type="text"
+                       name="equipment_name"
+                       placeholder="Equipment Name"
+                       required>
+
+                <input type="text"
+                       name="station"
+                       placeholder="Station"
+                       required>
+
+                <input type="text"
+                       name="category"
+                       placeholder="Category"
+                       required>
+
+                <input type="number"
+                       name="quantity"
+                       placeholder="Quantity"
+                       min="1"
+                       required>
+
+                <select name="condition"
+                        style="padding:12px;
+                               border-radius:8px;
+                               background:#101c26;
+                               color:white;
+                               border:1px solid #263b4a;">
+
+                    <option value="Operational">
+                        Operational
+                    </option>
+
+                    <option value="Maintenance">
+                        Maintenance
+                    </option>
+
+                    <option value="Damaged">
+                        Damaged
+                    </option>
+
+                    <option value="Critical">
+                        Critical
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button type="submit"
+                    class="primary-btn">
+
+                + Add Equipment
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Equipment List -->
+
+    <div class="panel">
+
+        <h2>Equipment Inventory</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Equipment</th>
+                        <th>Station</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Condition</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in equipment %}
+
+                    <tr>
+
+                        <td>
+                            {{ item["id"] }}
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                {{ item["equipment_name"] }}
+                            </strong>
+
+                        </td>
+
+                        <td>
+                            {{ item["station"] }}
+                        </td>
+
+                        <td>
+                            {{ item["category"] }}
+                        </td>
+
+                        <td>
+                            {{ item["quantity"] }}
+                        </td>
+
+                        <td>
+
+                            {% if item["condition"] == "Operational" %}
+
+                                <span class="status green">
+                                    ● Operational
+                                </span>
+
+                            {% elif item["condition"] == "Critical"
+                                  or item["condition"] == "Damaged" %}
+
+                                <span class="status red">
+                                    ● {{ item["condition"] }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="status yellow">
+                                    ● {{ item["condition"] }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="/equipment/delete/{{ item['id'] }}"
+                               onclick="return confirm('Delete this equipment?');"
+                               style="color:#f44336;
+                                      text-decoration:none;">
+
+                                Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="7"
+                            style="text-align:center;
+                                   color:#91a8ba;">
+
+                            No equipment records found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

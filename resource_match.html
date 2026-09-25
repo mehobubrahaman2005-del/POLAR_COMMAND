@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Resource Matcher - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="main-content">
+
+    <!-- Header -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Emergency Resource Matcher</h1>
+
+            <p style="color:#91a8ba;">
+                Automatically identify available response resources
+            </p>
+
+        </div>
+
+        <a href="/module/emergency"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Emergency Center
+
+        </a>
+
+    </div>
+
+
+    <!-- Emergency Details -->
+
+    <div class="panel"
+         style="border-left:4px solid #f44336;">
+
+        <h2>
+            🚨 {{ emergency["title"] }}
+        </h2>
+
+        <p style="color:#91a8ba;
+                  margin-top:10px;">
+
+            Station:
+            <strong style="color:white;">
+                {{ emergency["station"] }}
+            </strong>
+
+            &nbsp;&nbsp; | &nbsp;&nbsp;
+
+            Severity:
+            <strong style="color:#f44336;">
+                {{ emergency["severity"] }}
+            </strong>
+
+        </p>
+
+        <p style="color:#d8e5ed;
+                  margin-top:10px;">
+
+            {{ emergency["description"] }}
+
+        </p>
+
+    </div>
+
+
+    <!-- Personnel -->
+
+    <div class="panel">
+
+        <h2>👨‍🚀 Available Personnel</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Skill</th>
+                        <th>Station</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for person in personnel %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ person["name"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ person["role"] }}
+                        </td>
+
+                        <td>
+                            {{ person["skill"] }}
+                        </td>
+
+                        <td>
+                            {{ person["station"] }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="4"
+                            style="text-align:center;
+                                   color:#f44336;">
+
+                            No available personnel found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Equipment -->
+
+    <div class="panel">
+
+        <h2>🛠 Available Equipment</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Equipment</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Condition</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in equipment %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item["equipment_name"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item["category"] }}
+                        </td>
+
+                        <td>
+                            {{ item["quantity"] }}
+                        </td>
+
+                        <td>
+
+                            <span class="status green">
+                                ● Operational
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="4"
+                            style="text-align:center;
+                                   color:#f44336;">
+
+                            No operational equipment found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Inventory -->
+
+    <div class="panel">
+
+        <h2>📦 Available Inventory</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Daily Consumption</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in inventory %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item["item_name"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item["quantity"] }}
+                        </td>
+
+                        <td>
+                            {{ item["unit"] }}
+                        </td>
+
+                        <td>
+                            {{ item["daily_consumption"] }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="4"
+                            style="text-align:center;
+                                   color:#f44336;">
+
+                            No available inventory found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Decision Button -->
+
+    <div class="panel"
+         style="text-align:center;">
+
+        <h2>Response Planning</h2>
+
+        <p style="color:#91a8ba;
+                  margin:10px 0 20px;">
+
+            Resources identified for this emergency.
+            Commander can review them before creating a response action.
+
+        </p>
+
+        <a href="/module/decision"
+           class="primary-btn"
+           style="display:inline-block;
+                  text-decoration:none;">
+
+            Open Decision Center →
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>POLAR COMMAND</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}">
+
+
+<style>
+
+    /* ==========================================
+       REMOVE SIDE DECORATIVE DOTS
+       ========================================== */
+
+    .login-box::before,
+    .login-box::after {
+        content: none !important;
+        display: none !important;
+    }
+
+
+    /* ==========================================
+       PASSWORD FIELD
+       ========================================== */
+
+    .password-wrapper {
+        position: relative !important;
+        width: 100% !important;
+        display: block !important;
+    }
+
+
+    .password-wrapper input {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding-right: 48px !important;
+    }
+
+
+    /* ==========================================
+       PROFESSIONAL EYE BUTTON
+       ========================================== */
+
+    .password-wrapper .password-toggle {
+        position: absolute !important;
+
+        right: 10px !important;
+        left: auto !important;
+
+        top: 50% !important;
+        bottom: auto !important;
+
+        transform: translateY(-50%) !important;
+
+        width: 30px !important;
+        height: 30px !important;
+
+        margin: 0 !important;
+
+        padding: 0 !important;
+
+        background: transparent !important;
+
+        border: none !important;
+
+        color: #91a8ba !important;
+
+        cursor: pointer !important;
+
+        display: flex !important;
+
+        align-items: center !important;
+        justify-content: center !important;
+
+        z-index: 10 !important;
+    }
+
+
+    .password-wrapper .password-toggle:hover {
+        color: #7dc8ff !important;
+    }
+
+
+    .password-toggle svg {
+        width: 20px !important;
+        height: 20px !important;
+
+        display: block !important;
+
+        pointer-events: none !important;
+    }
+
+/* ==========================================
+   REMOVE ALL LOGIN PAGE SIDE DOTS
+   ========================================== */
+
+body::before,
+body::after,
+.login-container::before,
+.login-container::after,
+.login-box::before,
+.login-box::after {
+    content: none !important;
+    display: none !important;
+}
+
+
+/* ==========================================
+   FIX PASSWORD EYE POSITION
+   ========================================== */
+
+.password-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    height: 50px !important;
+}
+
+.password-wrapper input {
+    width: 100% !important;
+    height: 50px !important;
+    box-sizing: border-box !important;
+    padding-right: 48px !important;
+}
+
+.password-wrapper .password-toggle {
+    position: absolute !important;
+
+    top: 25px !important;
+    right: 10px !important;
+
+    left: auto !important;
+    bottom: auto !important;
+
+    transform: translateY(-50%) !important;
+
+    width: 30px !important;
+    height: 30px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+    border: none !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    color: #91a8ba !important;
+
+    z-index: 999 !important;
+}
+
+.password-wrapper .password-toggle:hover {
+    color: #7dc8ff !important;
+}
+
+.password-wrapper .password-toggle svg {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+<div class="login-box">
+
+
+    <div class="logo">❄️</div>
+
+
+    <h1>POLAR COMMAND</h1>
+
+
+    <p class="subtitle">
+
+        Integrated Polar Expedition<br>
+
+        Logistics & Asset Management System
+
+    </p>
+
+
+    <form action="/login" method="POST">
+
+
+        <!-- EMAIL -->
+
+        <label>Email</label>
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+        >
+
+
+        <!-- PASSWORD -->
+
+        <label>Password</label>
+
+
+        <div class="password-wrapper">
+
+
+            <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+
+            <!-- PROFESSIONAL EYE ICON -->
+
+            <button
+                type="button"
+                class="password-toggle"
+                id="passwordToggle"
+                onclick="togglePassword()"
+                aria-label="Show password"
+                title="Show password"
+            >
+
+                <svg
+                    id="eyeIcon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+
+                    <path
+                        d="M2 12
+                           C4.5 8
+                           8 6
+                           12 6
+                           C16 6
+                           19.5 8
+                           22 12
+                           C19.5 16
+                           16 18
+                           12 18
+                           C8 18
+                           4.5 16
+                           2 12Z"
+                    />
+
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="2.5"
+                    />
+
+                </svg>
+
+            </button>
+
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <button
+            type="submit"
+            class="login-btn">
+
+            LOGIN
+
+        </button>
+
+
+    </form>
+
+
+    <!-- DIVIDER -->
+
+    <div class="divider">
+
+        <span>OR</span>
+
+    </div>
+
+
+    <!-- GOOGLE -->
+
+    <button class="google-btn">
+
+        Continue with Google
+
+    </button>
+
+
+    <!-- DEMO -->
+
+    <a
+        href="/demo"
+        class="demo-btn">
+
+        Enter Demo Mode
+
+    </a>
+
+
+    <!-- FORGOT PASSWORD -->
+
+    <a
+        href="#"
+        class="forgot">
+
+        Forgot Password?
+
+    </a>
+
+
+</div>
+
+</div>
+
+<!-- ==========================================
+     SHOW / HIDE PASSWORD
+     ========================================== -->
+
+<script>
+
+function togglePassword() {
+
+    const password =
+        document.getElementById("password");
+
+    const eyeIcon =
+        document.getElementById("eyeIcon");
+
+    const toggle =
+        document.getElementById("passwordToggle");
+
+
+    if (password.type === "password") {
+
+        /* SHOW PASSWORD */
+
+        password.type = "text";
+
+        toggle.title = "Hide password";
+
+        toggle.setAttribute(
+            "aria-label",
+            "Hide password"
+        );
+
+
+        /* EYE-OFF ICON */
+
+        eyeIcon.innerHTML = `
+
+            <path d="M3 3L21 21"/>
+
+            <path
+                d="M10.6 10.6
+                   A2 2 0 0 0
+                   13.4 13.4"
+            />
+
+            <path
+                d="M9.2 4.5
+                   C10.1 4.2
+                   11 4
+                   12 4
+                   C18 4
+                   22 10
+                   22 12
+                   C21.2 13.6
+                   20.1 15
+                   18.7 16.2"
+            />
+
+            <path
+                d="M6.1 6.1
+                   C3.5 7.8
+                   2 10.2
+                   2 12
+                   C2 12
+                   5.5 18
+                   12 18
+                   C13.4 18
+                   14.7 17.7
+                   15.9 17.2"
+            />
+
+        `;
+
+    }
+
+    else {
+
+        /* HIDE PASSWORD */
+
+        password.type = "password";
+
+        toggle.title = "Show password";
+
+        toggle.setAttribute(
+            "aria-label",
+            "Show password"
+        );
+
+
+        /* NORMAL EYE ICON */
+
+        eyeIcon.innerHTML = `
+
+            <path
+                d="M2 12
+                   C4.5 8
+                   8 6
+                   12 6
+                   C16 6
+                   19.5 8
+                   22 12
+                   C19.5 16
+                   16 18
+                   12 18
+                   C8 18
+                   4.5 16
+                   2 12Z"
+            />
+
+            <circle
+                cx="12"
+                cy="12"
+                r="2.5"
+            />
+
+        `;
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>

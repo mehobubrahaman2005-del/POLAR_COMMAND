@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Resource Usage History - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Resource Usage History</h1>
+
+            <p style="color:#91a8ba;">
+                Record of resources consumed during response operations
+            </p>
+
+        </div>
+
+        <a href="/tasks"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Response Tasks
+
+        </a>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Resource Consumption Records</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Task</th>
+                        <th>Resource</th>
+                        <th>Quantity Used</th>
+                        <th>Station</th>
+                        <th>Used By</th>
+                        <th>Time</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for item in history %}
+
+                    <tr>
+
+                        <td>
+                            {{ item["id"] }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ item["task_title"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item["item_name"] }}
+                        </td>
+
+                        <td>
+                            {{ item["quantity_used"] }}
+                            {{ item["unit"] }}
+                        </td>
+
+                        <td>
+                            {{ item["station"] }}
+                        </td>
+
+                        <td>
+                            {{ item["used_by"] }}
+                        </td>
+
+                        <td>
+                            {{ item["used_at"] }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="7"
+                            style="text-align:center;
+                                   color:#91a8ba;">
+
+                            No resource usage records found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>What-If Simulator - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+
+    <!-- Header -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>What-If Simulator</h1>
+
+            <p style="color:#91a8ba;">
+                Simulate future resource conditions before making a decision
+            </p>
+
+        </div>
+
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Dashboard
+
+        </a>
+
+    </div>
+
+
+
+    <!-- Simulator Form -->
+
+    <div class="panel">
+
+        <h2>Scenario Simulation</h2>
+
+        <p style="color:#91a8ba;
+                  margin-top:8px;">
+
+            Example: What happens if a resupply shipment is delayed?
+
+        </p>
+
+
+        <form action="/simulator/run"
+              method="POST"
+              style="margin-top:25px;">
+
+            <div class="form-grid">
+
+
+                <select name="station"
+                        required
+                        style="padding:12px;
+                               border-radius:8px;
+                               background:#101c26;
+                               color:white;
+                               border:1px solid #263b4a;">
+
+                    {% if stations %}
+
+                        <option value="">
+                            Select Station
+                        </option>
+
+
+                        {% for station in stations %}
+
+                            <option value="{{ station['name'] }}">
+
+                                {{ station["name"] }}
+
+                            </option>
+
+                        {% endfor %}
+
+
+                    {% else %}
+
+                        <option value="{{ selected_station }}">
+
+                            {{ selected_station }}
+
+                        </option>
+
+                    {% endif %}
+
+                </select>
+
+
+
+                <input type="number"
+                       name="delay_days"
+                       placeholder="Delay in Days"
+                       min="1"
+                       step="1"
+                       required>
+
+            </div>
+
+
+
+            <button type="submit"
+                    class="primary-btn">
+
+                Run Simulation →
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- Simulation Results -->
+
+    {% if results is defined %}
+
+    <div class="panel">
+
+        <h2>Simulation Result</h2>
+
+
+        <p style="color:#91a8ba;
+                  margin-top:8px;">
+
+            Station:
+
+            <strong style="color:white;">
+
+                {{ selected_station }}
+
+            </strong>
+
+
+            &nbsp; | &nbsp;
+
+
+            Resupply Delay:
+
+            <strong style="color:#ffc107;">
+
+                {{ delay_days }} days
+
+            </strong>
+
+        </p>
+
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Resource</th>
+
+                        <th>Current Stock</th>
+
+                        <th>Daily Use</th>
+
+                        <th>Expected Stock</th>
+
+                        <th>Risk</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for item in results %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+
+                                {{ item["item_name"] }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["current_quantity"] }}
+
+                            {{ item["unit"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["daily_consumption"] }}
+
+                            {{ item["unit"] }}/day
+
+                        </td>
+
+
+                        <td>
+
+                            {{ "%.1f"|format(
+                                item["expected_quantity"]
+                            ) }}
+
+                            {{ item["unit"] }}
+
+                        </td>
+
+
+                        <td>
+
+
+                            {% if item["risk"] == "Critical" %}
+
+                                <span class="status red">
+
+                                    ● Critical
+
+                                </span>
+
+
+                            {% elif item["risk"] == "High" %}
+
+                                <span class="status red">
+
+                                    ● High
+
+                                </span>
+
+
+                            {% elif item["risk"] == "Medium" %}
+
+                                <span class="status yellow">
+
+                                    ● Medium
+
+                                </span>
+
+
+                            {% else %}
+
+                                <span class="status green">
+
+                                    ● Low
+
+                                </span>
+
+                            {% endif %}
+
+
+                        </td>
+
+                    </tr>
+
+
+                {% else %}
+
+
+                    <tr>
+
+                        <td colspan="5"
+                            style="text-align:center;
+                                   color:#91a8ba;">
+
+                            No inventory data available
+                            for this station.
+
+                        </td>
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+
+    <!-- Alternative Action Generator -->
+
+    {% if results is defined %}
+
+    <div class="panel">
+
+        <h2>Alternative Action Generator</h2>
+
+
+        <p style="color:#91a8ba;
+                  margin-top:8px;">
+
+            Generate alternative response options
+            based on the simulation result.
+
+        </p>
+
+
+        <form action="/simulator/alternatives"
+              method="POST"
+              style="margin-top:20px;">
+
+
+            <!-- Selected Station -->
+
+            <input type="hidden"
+                   name="station"
+                   value="{{ selected_station }}">
+
+
+            <!-- Delay Days -->
+
+            <input type="hidden"
+                   name="delay_days"
+                   value="{{ delay_days }}">
+
+
+            <button type="submit"
+                    class="primary-btn">
+
+                Generate Alternative Actions →
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+    {% endif %}
+
+
+
+    <!-- Decision Link -->
+
+    {% if results is defined %}
+
+    <div class="panel"
+         style="text-align:center;">
+
+        <h2>Next Action</h2>
+
+
+        <p style="color:#91a8ba;
+                  margin:10px 0 20px;">
+
+            Use the simulation result to evaluate
+            alternative response actions.
+
+        </p>
+
+
+        <a href="/module/decision"
+           class="primary-btn"
+           style="display:inline-block;
+                  text-decoration:none;">
+
+            Open Decision Center →
+
+        </a>
+
+    </div>
+
+    {% endif %}
+
+
+
+</div>
+
+
+</body>
+
+</html>
