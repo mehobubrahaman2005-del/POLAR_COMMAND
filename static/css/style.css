@@ -613,3 +613,7 @@ body {
     margin: 0;
     overflow: hidden;
 }
+
+.login-container h1 {
+    margin-bottom: 28px;
+}
