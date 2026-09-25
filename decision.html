@@ -1,0 +1,627 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Decision Center - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        /* =====================================================
+           DECISION CENTER LAYOUT FIX
+           ===================================================== */
+
+        .decision-main {
+            width: 100%;
+            min-width: 0 !important;
+            box-sizing: border-box;
+        }
+
+        .decision-panel {
+            width: 100%;
+            min-width: 0 !important;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .decision-table-container {
+            width: 100%;
+            min-width: 0 !important;
+            overflow-x: hidden !important;
+            overflow-y: visible;
+        }
+
+        .decision-table {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            table-layout: fixed !important;
+            border-collapse: collapse;
+        }
+
+        .decision-table th,
+        .decision-table td {
+            box-sizing: border-box;
+            padding: 9px 7px;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        /* Decision Options column widths */
+
+        .decision-table th:nth-child(1),
+        .decision-table td:nth-child(1) {
+            width: 5%;
+        }
+
+        .decision-table th:nth-child(2),
+        .decision-table td:nth-child(2) {
+            width: 14%;
+        }
+
+        .decision-table th:nth-child(3),
+        .decision-table td:nth-child(3) {
+            width: 10%;
+        }
+
+        .decision-table th:nth-child(4),
+        .decision-table td:nth-child(4) {
+            width: 9%;
+        }
+
+        .decision-table th:nth-child(5),
+        .decision-table td:nth-child(5) {
+            width: 25%;
+        }
+
+        .decision-table th:nth-child(6),
+        .decision-table td:nth-child(6) {
+            width: 8%;
+        }
+
+        .decision-table th:nth-child(7),
+        .decision-table td:nth-child(7) {
+            width: 8%;
+        }
+
+        .decision-table th:nth-child(8),
+        .decision-table td:nth-child(8) {
+            width: 10%;
+        }
+
+        .decision-table th:nth-child(9),
+        .decision-table td:nth-child(9) {
+            width: 11%;
+        }
+
+        .decision-table th {
+            white-space: normal;
+        }
+
+        .decision-table td {
+            font-size: 13px;
+            line-height: 1.25;
+        }
+
+        .decision-table .primary-btn {
+            display: inline-block;
+            padding: 7px 12px;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        .decision-table strong {
+            display: block;
+            white-space: normal;
+        }
+
+        /* Emergency table */
+
+        .emergency-table-container {
+            width: 100%;
+            min-width: 0 !important;
+            overflow-x: hidden !important;
+        }
+
+        .emergency-table {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            table-layout: fixed !important;
+        }
+
+        .emergency-table th,
+        .emergency-table td {
+            padding: 9px 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .emergency-table th:nth-child(1),
+        .emergency-table td:nth-child(1) {
+            width: 8%;
+        }
+
+        .emergency-table th:nth-child(2),
+        .emergency-table td:nth-child(2) {
+            width: 30%;
+        }
+
+        .emergency-table th:nth-child(3),
+        .emergency-table td:nth-child(3) {
+            width: 22%;
+        }
+
+        .emergency-table th:nth-child(4),
+        .emergency-table td:nth-child(4) {
+            width: 15%;
+        }
+
+        .emergency-table th:nth-child(5),
+        .emergency-table td:nth-child(5) {
+            width: 25%;
+        }
+
+        /* Keep the complete page inside viewport */
+
+        .main-content {
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 1100px) {
+
+            .decision-table th,
+            .decision-table td {
+                font-size: 11px;
+                padding: 7px 5px;
+            }
+
+            .decision-table .primary-btn {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+
+        }
+
+                /* ================================
+           DECISION CENTER FINAL LAYOUT
+           ================================ */
+
+        .decision-main {
+            margin-left: 280px !important;
+            width: auto !important;
+            max-width: none !important;
+            min-width: 0 !important;
+
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            box-sizing: border-box;
+            padding: 30px;
+        }
+
+        .decision-main .decision-panel {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .decision-main .decision-table-container,
+        .decision-main .emergency-table-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto !important;
+            box-sizing: border-box;
+        }
+
+        .decision-main .decision-table,
+        .decision-main .emergency-table {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div>
+
+    <!-- ================================================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ================================================= -->
+
+    <main class="main-content decision-main">
+
+
+        <!-- HEADER -->
+
+        <div class="topbar">
+
+            <h1>
+                Decision Center
+            </h1>
+
+            <p>
+                Review response options and make
+                operational decisions.
+            </p>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- EMERGENCY EVENTS -->
+        <!-- ================================================= -->
+
+        <div class="panel decision-panel">
+
+            <h2>
+                Active Emergency Events
+            </h2>
+
+
+            {% if emergencies %}
+
+            <div class="table-container emergency-table-container">
+
+                <table class="emergency-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Emergency</th>
+
+                        <th>Station</th>
+
+                        <th>Severity</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for emergency in emergencies %}
+
+                    <tr>
+
+                        <td>
+                            {{ emergency["id"] }}
+                        </td>
+
+                        <td>
+                            {{ emergency["title"] }}
+                        </td>
+
+                        <td>
+                            {{ emergency["station"] }}
+                        </td>
+
+                        <td>
+
+                            {% if emergency["severity"] == "Critical" %}
+
+                                <span class="red">
+                                    Critical
+                                </span>
+
+                            {% elif emergency["severity"] == "High" %}
+
+                                <span class="red">
+                                    High
+                                </span>
+
+                            {% elif emergency["severity"] == "Medium" %}
+
+                                <span class="yellow">
+                                    Medium
+                                </span>
+
+                            {% else %}
+
+                                <span class="green">
+                                    Low
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                href="/decision/generate/{{ emergency['id'] }}"
+                                class="primary-btn"
+                            >
+                                Generate Options
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+                <p>
+                    No active emergency events.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- DECISION OPTIONS -->
+        <!-- ================================================= -->
+
+        <div class="panel decision-panel">
+
+            <h2>
+                Available Decision Options
+            </h2>
+
+
+            {% if decisions %}
+
+            <div class="table-container decision-table-container">
+
+                <table class="decision-table">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Scenario</th>
+
+                        <th>Station</th>
+
+                        <th>Option</th>
+
+                        <th>Action</th>
+
+                        <th>Risk</th>
+
+                        <th>Time</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for decision in decisions %}
+
+                    <tr>
+
+                        <!-- ID -->
+
+                        <td>
+                            {{ decision["id"] }}
+                        </td>
+
+
+                        <!-- SCENARIO -->
+
+                        <td>
+
+                            {% if decision["scenario"] %}
+
+                                {{ decision["scenario"] }}
+
+                            {% elif decision["emergency_title"] %}
+
+                                {{ decision["emergency_title"] }}
+
+                            {% else %}
+
+                                Emergency Response
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- STATION -->
+
+                        <td>
+                            {{ decision["station"] or "-" }}
+                        </td>
+
+
+                        <!-- OPTION -->
+
+                        <td>
+
+                            <strong>
+                                {{ decision["option_name"] }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- ACTION -->
+
+                        <td>
+                            {{ decision["action"] }}
+                        </td>
+
+
+                        <!-- RISK -->
+
+                        <td>
+
+                            {% if decision["risk_level"] == "Low" %}
+
+                                <span class="green">
+                                    Low
+                                </span>
+
+                            {% elif decision["risk_level"] == "Medium" %}
+
+                                <span class="yellow">
+                                    Medium
+                                </span>
+
+                            {% else %}
+
+                                <span class="red">
+                                    High
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- TIME -->
+
+                        <td>
+                            {{ decision["estimated_time"] }}
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            {% if decision["status"] == "Selected" %}
+
+                                <span class="green">
+                                    ✓ Selected
+                                </span>
+
+                            {% else %}
+
+                                Pending
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- SELECT -->
+
+                        <td>
+
+                            {% if decision["status"] != "Selected" %}
+
+                                <a
+                                    href="/decision/select/{{ decision['id'] }}"
+                                    class="primary-btn"
+                                >
+                                    Select
+                                </a>
+
+                            {% else %}
+
+                                <span class="green">
+                                    ✓ Selected
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            {% else %}
+
+                <div class="panel">
+
+                    <p>
+                        No decision options available.
+                    </p>
+
+                    <p>
+                        Generate options from an emergency
+                        or send options from the What-If Simulator.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- DECISION FLOW -->
+        <!-- ================================================= -->
+
+        <div class="panel decision-panel">
+
+            <h2>
+                Decision Workflow
+            </h2>
+
+            <p>
+                Real Data → Risk Detection →
+                What-If Simulation →
+                Alternative Actions →
+                Option Comparison →
+                Commander Decision →
+                Response Task
+            </p>
+
+        </div>
+
+
+</main>
+
+</div>
+
+
+</body>
+
+</html>
+```

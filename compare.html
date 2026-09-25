@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Option Comparison - POLAR COMMAND
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div>
+
+
+    <!-- ================================================= -->
+    <!-- SIDEBAR -->
+    <!-- ================================================= -->
+
+            {% include 'sidebar.html' %}
+
+    <!-- ================================================= -->
+    <!-- MAIN -->
+    <!-- ================================================= -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <div class="topbar">
+
+    <div>
+        <h1>
+            Option Comparison Engine
+        </h1>
+
+        <p>
+            Compare response options before making
+            an operational decision.
+        </p>
+    </div>
+
+
+    <a href="#"
+       onclick="history.back(); return false;"
+       style="color:#7dc8ff;
+              text-decoration:none;
+              white-space:nowrap;">
+
+        ← Alternative Action
+
+    </a>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SCENARIO -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Scenario Information
+            </h2>
+
+
+            <div class="form-grid">
+
+
+                <div>
+
+                    <strong>
+                        Station
+                    </strong>
+
+                    <p>
+                        {{ station }}
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Delay
+                    </strong>
+
+                    <p>
+                        {{ delay_days }} days
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Critical Resources
+                    </strong>
+
+                    <p>
+                        {{ critical_count }}
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SUPPORT INFORMATION -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Available Support
+            </h2>
+
+
+            <div class="form-grid">
+
+
+                <div>
+
+                    <strong>
+                        Incoming Cargo
+                    </strong>
+
+                    <p>
+                        {{ incoming_cargo }}
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Other Stations
+                    </strong>
+
+                    <p>
+                        {{ available_stations }}
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- OPTION COMPARISON -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Response Option Comparison
+            </h2>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            Option
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                        <th>
+                            Risk
+                        </th>
+
+                        <th>
+                            Time
+                        </th>
+
+                        <th>
+                            Resource
+                        </th>
+
+                        <th>
+                            Availability
+                        </th>
+
+                        <th>
+                            Score
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for option in options %}
+
+                    <tr>
+
+
+                        <td>
+
+                            <strong>
+                                {{ option["name"] }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ option["title"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if option["risk"] == "Low" %}
+
+                                <span class="green">
+                                    Low
+                                </span>
+
+                            {% elif option["risk"] == "Medium" %}
+
+                                <span class="yellow">
+                                    Medium
+                                </span>
+
+                            {% else %}
+
+                                <span class="red">
+                                    High
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ option["time"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ option["resource"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ option["availability"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{
+                                    "%.1f"
+                                    |format(
+                                        option["comparison_score"]
+                                    )
+                                }}
+                            </strong>
+
+                        </td>
+
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- EXPLANATION -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Comparison Method
+            </h2>
+
+            <p>
+                The prototype comparison score combines
+                risk level, estimated response time and
+                resource availability.
+            </p>
+
+            <p>
+                A lower score represents lower combined
+                operational burden in this prototype.
+            </p>
+
+            <p>
+                The final operational decision remains
+                with the commander.
+            </p>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SEND TO DECISION CENTER -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <h2>
+                Commander Review
+            </h2>
+
+            <p>
+                Review the options above and send them
+                to the Decision Center.
+            </p>
+
+            <br>
+
+
+            <form
+                action="/simulator/send-to-decision"
+                method="POST"
+            >
+
+                <input
+                    type="hidden"
+                    name="station"
+                    value="{{ station }}"
+                >
+
+
+                <input
+                    type="hidden"
+                    name="delay_days"
+                    value="{{ delay_days }}"
+                >
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Send Options to Decision Center →
+                </button>
+
+            </form>
+
+        </div>
+
+
+    </main>
+
+</div>
+
+
+</body>
+
+</html>

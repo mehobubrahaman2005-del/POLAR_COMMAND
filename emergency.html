@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Emergency Center - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Emergency Center</h1>
+
+            <p style="color:#91a8ba;">
+                Emergency monitoring and response management
+            </p>
+
+        </div>
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- Emergency Alert -->
+
+    <div class="panel"
+         style="border-left:4px solid #f44336;">
+
+        <h2>Report Emergency</h2>
+
+        <form action="/emergency/add"
+              method="POST"
+              style="margin-top:20px;">
+
+            <div class="form-grid">
+
+                <input type="text"
+                       name="title"
+                       placeholder="Emergency Title"
+                       required>
+
+                <input type="text"
+                       name="station"
+                       placeholder="Affected Station"
+                       required>
+
+                <select name="severity"
+                        style="padding:12px;
+                               border-radius:8px;
+                               background:#101c26;
+                               color:white;
+                               border:1px solid #263b4a;">
+
+                    <option value="Low">
+                        Low
+                    </option>
+
+                    <option value="Medium">
+                        Medium
+                    </option>
+
+                    <option value="High">
+                        High
+                    </option>
+
+                    <option value="Critical">
+                        Critical
+                    </option>
+
+                </select>
+
+                <input type="text"
+                       name="description"
+                       placeholder="Emergency Description"
+                       required>
+
+            </div>
+
+            <button type="submit"
+                    class="primary-btn"
+                    style="background:#c62828;">
+
+                🚨 Report Emergency
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Emergency List -->
+
+    <div class="panel">
+
+        <h2>Active Emergency Events</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Emergency</th>
+                        <th>Station</th>
+                        <th>Severity</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for emergency in emergencies %}
+
+                    <tr>
+
+                        <td>
+                            {{ emergency["id"] }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ emergency["title"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ emergency["station"] }}
+                        </td>
+
+                        <td>
+
+                            {% if emergency["severity"] == "Critical" %}
+
+                                <span class="status red">
+                                    ● Critical
+                                </span>
+
+                            {% elif emergency["severity"] == "High" %}
+
+                                <span class="status red">
+                                    ● High
+                                </span>
+
+                            {% elif emergency["severity"] == "Medium" %}
+
+                                <span class="status yellow">
+                                    ● Medium
+                                </span>
+
+                            {% else %}
+
+                                <span class="status green">
+                                    ● Low
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ emergency["description"] }}
+                        </td>
+
+                        <td>
+
+                            {% if emergency["status"] == "Open" %}
+
+                                <span class="status red">
+                                    ● Open
+                                </span>
+
+                            {% else %}
+
+                                <span class="status green">
+                                    ● {{ emergency["status"] }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <td>
+
+                             <a href="/emergency/match/{{ emergency['id'] }}"
+                                 style="color:#7dc8ff;
+                                         text-decoration:none;
+                                        margin-right:10px;">
+
+                                Match Resources
+
+                            </a>
+
+                             <a href="/emergency/delete/{{ emergency['id'] }}"
+                                onclick="return confirm('Delete this emergency?');"
+                                 style="color:#f44336;
+                                         text-decoration:none;">
+
+                                 Delete
+
+                             </a>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="7"
+                            style="text-align:center;
+                                   color:#91a8ba;">
+
+                            No emergency events found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+<!-- POLAR COMMAND - Emergency Notifications -->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const emergencyForm =
+        document.querySelector(
+            'form[action="/emergency/add"]'
+        );
+
+    if (!emergencyForm) {
+        return;
+    }
+
+    emergencyForm.addEventListener(
+        "submit",
+        function () {
+
+            const title =
+                emergencyForm
+                    .querySelector('input[name="title"]')
+                    .value
+                    .trim();
+
+            const station =
+                emergencyForm
+                    .querySelector('input[name="station"]')
+                    .value
+                    .trim();
+
+            const severity =
+                emergencyForm
+                    .querySelector('select[name="severity"]')
+                    .value;
+
+            showPolarNotification(
+                "🚨 Emergency Alert",
+                severity +
+                " emergency reported at " +
+                station +
+                ": " +
+                title
+            );
+
+        }
+    );
+
+});
+
+</script>
+
+</div>
+
+</body>
+
+</html>

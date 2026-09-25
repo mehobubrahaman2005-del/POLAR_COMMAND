@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Conflict Resolution - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+    {% include 'sidebar.html' %}
+
+    <div class="main-content">
+
+    <!-- Header -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Conflict Resolution</h1>
+
+            <p style="color:#91a8ba;">
+                Review and resolve offline synchronization conflicts
+            </p>
+
+        </div>
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- Conflict Information -->
+
+    <div class="panel">
+
+        <h2>⚠️ Pending Conflicts</h2>
+
+        <p style="color:#91a8ba;">
+            Compare local and server values before applying a change.
+        </p>
+
+    </div>
+
+
+    <!-- Conflict List -->
+
+    <div id="conflict-container">
+
+        <div class="panel">
+
+            <p style="color:#91a8ba;">
+                Loading conflicts...
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/offline.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+
+<script>
+
+/* =========================================================
+   LOAD CONFLICTS
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        loadConflicts();
+        checkConflictNotifications();
+
+    }
+);
+
+
+/* =========================================================
+   GET CONFLICTS FROM INDEXEDDB
+========================================================= */
+
+function getAllConflicts() {
+
+    return new Promise(
+        async function (resolve, reject) {
+
+            try {
+
+                const db =
+                    await openPolarDatabase();
+
+
+                const transaction =
+                    db.transaction(
+                        "conflicts",
+                        "readonly"
+                    );
+
+
+                const store =
+                    transaction.objectStore(
+                        "conflicts"
+                    );
+
+
+                const request =
+                    store.getAll();
+
+
+                request.onsuccess =
+                    function () {
+
+                        const conflicts =
+                            request.result.filter(
+                                conflict =>
+                                    conflict.resolved !== true
+                            );
+
+
+                        resolve(conflicts);
+
+                        db.close();
+
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error
+                        );
+
+                        db.close();
+
+                    };
+
+            }
+
+            catch (error) {
+
+                reject(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DISPLAY CONFLICTS
+========================================================= */
+
+async function loadConflicts() {
+
+    const container =
+        document.getElementById(
+            "conflict-container"
+        );
+
+
+    try {
+
+        const conflicts =
+            await getAllConflicts();
+
+
+        if (conflicts.length === 0) {
+
+            container.innerHTML = `
+
+                <div class="panel">
+
+                    <h2 style="color:#4caf50;">
+                        ✓ No Pending Conflicts
+                    </h2>
+
+                    <p style="color:#91a8ba;">
+                        All synchronization conflicts
+                        have been resolved.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        conflicts.forEach(
+            function (conflict) {
+
+                const local =
+                    conflict.local_record || {};
+
+
+                const server =
+                    conflict.server_record || {};
+
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "panel";
+
+
+                card.style.marginBottom =
+                    "20px";
+
+
+                card.innerHTML = `
+
+                    <h2>
+                        ⚠️ Inventory Conflict
+                    </h2>
+
+
+                    <p style="color:#91a8ba;">
+
+                        Conflict Type:
+                        ${escapeConflictHTML(
+                            conflict.conflict_type
+                        )}
+
+                    </p>
+
+
+                    <div class="form-grid">
+
+                        <div>
+
+                            <h3>
+                                Local Value
+                            </h3>
+
+                            <div style="
+                                padding:15px;
+                                border-radius:8px;
+                                background:#243447;
+                            ">
+
+                                <p>
+                                    <strong>
+                                        Item:
+                                    </strong>
+
+                                    ${escapeConflictHTML(
+                                        local.item_name
+                                    )}
+                                </p>
+
+
+                                <p>
+                                    <strong>
+                                        Station:
+                                    </strong>
+
+                                    ${escapeConflictHTML(
+                                        local.station
+                                    )}
+                                </p>
+
+
+                                <p>
+                                    <strong>
+                                        Quantity:
+                                    </strong>
+
+                                    ${local.quantity ?? "-"}
+                                    ${escapeConflictHTML(
+                                        local.unit
+                                    )}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Server Value
+                            </h3>
+
+                            <div style="
+                                padding:15px;
+                                border-radius:8px;
+                                background:#243447;
+                            ">
+
+                                <p>
+                                    <strong>
+                                        Item:
+                                    </strong>
+
+                                    ${escapeConflictHTML(
+                                        server.item_name
+                                    )}
+                                </p>
+
+
+                                <p>
+                                    <strong>
+                                        Station:
+                                    </strong>
+
+                                    ${escapeConflictHTML(
+                                        server.station
+                                    )}
+                                </p>
+
+
+                                <p>
+                                    <strong>
+                                        Quantity:
+                                    </strong>
+
+                                    ${server.quantity ?? "-"}
+                                    ${escapeConflictHTML(
+                                        server.unit
+                                    )}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div style="
+                        margin-top:20px;
+                        display:flex;
+                        gap:10px;
+                        flex-wrap:wrap;
+                    ">
+
+                        <button
+                            class="primary-btn"
+                            onclick="
+                                resolveConflict(
+                                    ${conflict.id},
+                                    'LOCAL'
+                                )
+                            "
+                        >
+                            Keep Local
+                        </button>
+
+
+                        <button
+                            class="primary-btn"
+                            onclick="
+                                resolveConflict(
+                                    ${conflict.id},
+                                    'SERVER'
+                                )
+                            "
+                        >
+                            Keep Server
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(card);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Conflict loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="panel">
+
+                <p style="color:#f44336;">
+
+                    Unable to load conflicts.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   CONFLICT NOTIFICATION
+========================================================= */
+
+async function checkConflictNotifications() {
+
+    try {
+
+        const conflicts =
+            await getAllConflicts();
+
+        if (!conflicts || conflicts.length === 0) {
+            return;
+        }
+
+        const notificationKey =
+            "polar_conflict_notification";
+
+        const alreadyShown =
+            sessionStorage.getItem(
+                notificationKey
+            );
+
+        if (alreadyShown === "shown") {
+            return;
+        }
+
+        const count =
+            conflicts.length;
+
+        showPolarNotification(
+            "⚠️ Sync Conflict Detected",
+            count +
+            (count === 1
+                ? " synchronization conflict needs attention."
+                : " synchronization conflicts need attention.")
+        );
+
+        sessionStorage.setItem(
+            notificationKey,
+            "shown"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "POLAR COMMAND: Conflict notification error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RESOLVE CONFLICT
+========================================================= */
+
+async function resolveConflict(conflictId, decision) {
+
+    try {
+
+        console.log(
+            "POLAR COMMAND: Resolving conflict:",
+            conflictId,
+            decision
+        );
+
+
+        // ==========================================
+        // 1. GET CONFLICT DATA FIRST
+        // ==========================================
+
+        const db =
+            await openPolarDatabase();
+
+
+        const readTransaction =
+            db.transaction(
+                "conflicts",
+                "readonly"
+            );
+
+
+        const conflictStore =
+            readTransaction.objectStore(
+                "conflicts"
+            );
+
+
+        const getRequest =
+            conflictStore.get(
+                Number(conflictId)
+            );
+
+
+        const conflict =
+            await new Promise(
+                (resolve, reject) => {
+
+                    getRequest.onsuccess =
+                        () => {
+
+                            resolve(
+                                getRequest.result
+                            );
+
+                        };
+
+
+                    getRequest.onerror =
+                        () => {
+
+                            reject(
+                                getRequest.error
+                            );
+
+                        };
+
+                }
+            );
+
+
+        db.close();
+
+
+        if (!conflict) {
+
+            alert(
+                "Conflict record not found."
+            );
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // 2. SELECT RECORD
+        // ==========================================
+
+        let selectedRecord;
+
+
+        if (
+            decision === "LOCAL"
+        ) {
+
+            selectedRecord =
+                conflict.local_record;
+
+        }
+
+        else if (
+            decision === "SERVER"
+        ) {
+
+            selectedRecord =
+                conflict.server_record;
+
+        }
+
+        else {
+
+            alert(
+                "Invalid conflict resolution."
+            );
+
+            return;
+
+        }
+
+
+        if (!selectedRecord) {
+
+            alert(
+                "Selected record is missing."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "POLAR COMMAND: Selected record:",
+            selectedRecord
+        );
+
+
+        // ==========================================
+        // 3. SEND RESOLUTION TO SERVER
+        // ==========================================
+
+        if (!navigator.onLine) {
+
+            alert(
+                "Internet connection is required to resolve this conflict."
+            );
+
+            return;
+
+        }
+
+
+        const response =
+            await fetch(
+                "/api/conflict/resolve",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            conflict_id:
+                                Number(conflictId),
+
+                            decision:
+                                decision,
+
+                            record:
+                                selectedRecord
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "POLAR COMMAND: Conflict resolution response:",
+            result
+        );
+
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.message ||
+                "Conflict resolution failed."
+            );
+
+        }
+
+
+        // ==========================================
+        // 4. NOW UPDATE LOCAL INDEXEDDB
+        // ==========================================
+
+        const db2 =
+            await openPolarDatabase();
+
+
+        const writeTransaction =
+            db2.transaction(
+                "conflicts",
+                "readwrite"
+            );
+
+
+        const writeStore =
+            writeTransaction.objectStore(
+                "conflicts"
+            );
+
+
+        const localConflict =
+            await new Promise(
+                (resolve, reject) => {
+
+                    const request =
+                        writeStore.get(
+                            Number(conflictId)
+                        );
+
+
+                    request.onsuccess =
+                        () => {
+
+                            resolve(
+                                request.result
+                            );
+
+                        };
+
+
+                    request.onerror =
+                        () => {
+
+                            reject(
+                                request.error
+                            );
+
+                        };
+
+                }
+            );
+
+
+        if (localConflict) {
+
+            localConflict.resolved =
+                true;
+
+            localConflict.resolution =
+                decision;
+
+            localConflict.resolved_at =
+                new Date()
+                    .toISOString();
+
+            localConflict.resolved_record =
+                selectedRecord;
+
+
+            writeStore.put(
+                localConflict
+            );
+
+        }
+
+
+        writeTransaction.oncomplete =
+            function() {
+
+                db2.close();
+
+
+                console.log(
+                    "POLAR COMMAND: Conflict resolved successfully."
+                );
+
+
+                alert(
+                    "Conflict resolved successfully."
+                );
+
+
+                // Refresh conflict page
+                window.location.reload();
+
+            };
+
+
+        writeTransaction.onerror =
+            function(event) {
+
+                db2.close();
+
+
+                console.error(
+                    "POLAR COMMAND: Conflict local update failed:",
+                    event.target.error
+                );
+
+
+                alert(
+                    "Server updated, but local conflict status could not be updated."
+                );
+
+            };
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "POLAR COMMAND: Conflict resolution error:",
+            error
+        );
+
+
+        alert(
+            "Conflict resolution failed: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeConflictHTML(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+</script>
+
+</body>
+
+</html>

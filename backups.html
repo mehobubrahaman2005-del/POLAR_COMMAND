@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>POLAR COMMAND - Backup & Recovery</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    {% include 'sidebar.html' %}
+
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main-content">
+
+
+        <!-- ================= TOP BAR ================= -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+                    Backup & Recovery
+                </h1>
+
+                <p>
+                    Database Protection & Recovery Center
+                </p>
+
+            </div>
+
+
+            <div class="user-info">
+
+                <div class="user-avatar">
+                    C
+                </div>
+
+                <div>
+
+                    <strong>
+                        Demo Commander
+                    </strong>
+
+                    <small>
+                        COMMANDER
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= BACKUP ACTION ================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    💾 Database Backup
+                </h3>
+
+            </div>
+
+
+            <p>
+                Create a secure copy of the current POLAR COMMAND
+                operational database.
+            </p>
+
+
+            <a class="decision-btn"
+               href="/backup">
+
+                💾 Create New Backup
+
+            </a>
+
+        </section>
+
+
+
+        <!-- ================= BACKUP LIST ================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    ♻️ Available Backups
+                </h3>
+
+            </div>
+
+
+            {% if backups %}
+
+
+            <div style="
+                overflow-x:auto;
+                margin-top:15px;
+            ">
+
+                <table style="
+                    width:100%;
+                    border-collapse:collapse;
+                ">
+
+                    <thead>
+
+                        <tr>
+
+                            <th style="text-align:left; padding:12px;">
+                                Backup File
+                            </th>
+
+                            <th style="text-align:left; padding:12px;">
+                                Created
+                            </th>
+
+                            <th style="text-align:left; padding:12px;">
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for backup in backups %}
+
+                        <tr>
+
+                            <td style="padding:12px;">
+
+                                💾
+
+                                {{ backup.filename }}
+
+                            </td>
+
+
+                            <td style="padding:12px;">
+
+                                {{ backup.created }}
+
+                            </td>
+
+
+                            <td style="padding:12px;">
+
+                                <a
+                                    href="/recovery/{{ backup.filename }}"
+                                    class="decision-btn"
+                                    onclick="return confirm(
+                                        'Are you sure you want to restore this backup?'
+                                    );"
+                                >
+
+                                    ♻️ Restore
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            {% else %}
+
+
+            <div class="status-row">
+
+                <span>
+                    No database backups available.
+                </span>
+
+            </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+
+
+        <!-- ================= RECOVERY INFORMATION ================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    🛡️ Recovery Protection
+                </h3>
+
+            </div>
+
+
+            <p>
+                Before restoring a previous database version,
+                POLAR COMMAND automatically creates a safety backup
+                of the current database.
+            </p>
+
+
+            <p>
+                This helps prevent accidental data loss during recovery.
+            </p>
+
+        </section>
+
+
+
+        <!-- ================= NAVIGATION ================= -->
+
+        <section class="panel">
+
+            <a class="decision-btn"
+               href="/dashboard">
+
+                ← Back to Dashboard
+
+            </a>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/offline.js') }}"></script>
+
+
+</body>
+
+</html>
