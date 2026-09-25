@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Personnel Management - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <!-- Header -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Personnel Management</h1>
+
+            <p style="color:#91a8ba;">
+                Manage expedition personnel and skills
+            </p>
+
+        </div>
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- Add Personnel -->
+
+    <div class="panel">
+
+        <h2>Add Personnel</h2>
+
+        <form action="/personnel/add"
+              method="POST"
+              style="margin-top:20px;">
+
+            <div class="form-grid">
+
+                <input type="text"
+                       name="name"
+                       placeholder="Full Name"
+                       required>
+
+                <input type="text"
+                       name="role"
+                       placeholder="Role"
+                       required>
+
+                <input type="text"
+                       name="station"
+                       placeholder="Station"
+                       required>
+
+                <input type="text"
+                       name="skill"
+                       placeholder="Skill"
+                       required>
+
+                <select name="availability"
+                        style="padding:12px;
+                               border-radius:8px;
+                               background:#101c26;
+                               color:white;
+                               border:1px solid #263b4a;">
+
+                    <option value="Available">
+                        Available
+                    </option>
+
+                    <option value="Busy">
+                        Busy
+                    </option>
+
+                    <option value="On Leave">
+                        On Leave
+                    </option>
+
+                    <option value="Emergency">
+                        Emergency
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button type="submit"
+                    class="primary-btn">
+
+                + Add Personnel
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Personnel Table -->
+
+    <div class="panel">
+
+        <h2>Expedition Personnel</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Station</th>
+                        <th>Skill</th>
+                        <th>Availability</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for person in personnel %}
+
+                    <tr>
+
+                        <td>
+                            {{ person["id"] }}
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                {{ person["name"] }}
+                            </strong>
+
+                        </td>
+
+                        <td>
+                            {{ person["role"] }}
+                        </td>
+
+                        <td>
+                            {{ person["station"] }}
+                        </td>
+
+                        <td>
+                            {{ person["skill"] }}
+                        </td>
+
+                        <td>
+
+                            {% if person["availability"] == "Available" %}
+
+                                <span class="status green">
+                                    ● Available
+                                </span>
+
+                            {% elif person["availability"] == "Emergency" %}
+
+                                <span class="status red">
+                                    ● Emergency
+                                </span>
+
+                            {% else %}
+
+                                <span class="status yellow">
+                                    ● {{ person["availability"] }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="/personnel/delete/{{ person['id'] }}"
+                               onclick="return confirm('Delete this personnel?');"
+                               style="color:#f44336;
+                                      text-decoration:none;">
+
+                                Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="7"
+                            style="text-align:center;
+                                   color:#91a8ba;">
+
+                            No personnel records found.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

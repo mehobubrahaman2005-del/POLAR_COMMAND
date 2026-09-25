@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }} - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        .report-page {
+            padding: 25px;
+        }
+
+        .report-header {
+            margin-bottom: 20px;
+        }
+
+        .report-header h1 {
+            margin-bottom: 5px;
+        }
+
+        .report-header p {
+            color: #91a8ba;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .report-card {
+            background: #12304a;
+            border: 1px solid #214a68;
+            border-radius: 7px;
+            padding: 18px;
+        }
+
+        .report-card h3 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #91c8e8;
+        }
+
+        .report-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .report-section {
+            background: #102b43;
+            border: 1px solid #214a68;
+            border-radius: 7px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .report-section h2 {
+            margin-top: 0;
+            font-size: 17px;
+            color: #ffffff;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 9px;
+            border-bottom: 1px solid #29465c;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .report-table th {
+            color: #91c8e8;
+        }
+
+        .bar-row {
+            margin: 12px 0;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .bar {
+            height: 10px;
+            background: #203f56;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: #35a7e8;
+            border-radius: 5px;
+        }
+
+        .back-link {
+            color: #7dc8ff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .status-good {
+            color: #48d597;
+        }
+
+        .status-warning {
+            color: #ffc857;
+        }
+
+        .status-danger {
+            color: #ff6565;
+        }
+
+        .loading {
+            color: #91a8ba;
+        }
+
+        /* =========================================
+   REPORT / ANALYTICS PAGE LAYOUT FIX
+   ========================================= */
+
+.report-page {
+    margin-left: 280px !important;
+    width: calc(100% - 280px) !important;
+
+    height: 100vh;
+    min-height: 100vh;
+
+    padding: 30px !important;
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    overscroll-behavior: contain;
+}
+
+
+/* REPORT HEADER */
+
+.report-header {
+    margin-bottom: 25px;
+}
+
+.report-header h1 {
+    font-size: 32px;
+}
+
+.report-header p {
+    font-size: 16px;
+}
+
+
+/* REPORT CARDS */
+
+.report-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+}
+
+.report-card {
+    padding: 22px;
+
+    min-height: 105px;
+
+    border-radius: 10px;
+}
+
+.report-card h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.report-card .number {
+    font-size: 32px;
+}
+
+
+/* REPORT SECTIONS */
+
+.report-section {
+    padding: 22px;
+
+    margin-bottom: 22px;
+
+    border-radius: 10px;
+}
+
+.report-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+
+/* REPORT TABLE */
+
+.report-table {
+    width: 100%;
+}
+
+.report-table th,
+.report-table td {
+    padding: 12px 10px;
+
+    font-size: 14px;
+}
+
+
+/* ANALYTICS BARS */
+
+.bar-row {
+    margin: 16px 0;
+}
+
+.bar-label {
+    font-size: 14px;
+    margin-bottom: 7px;
+}
+
+.bar {
+    height: 12px;
+    border-radius: 6px;
+}
+
+
+/* BACK LINK */
+
+.back-link {
+    font-size: 15px;
+}
+
+    </style>
+
+</head>
+
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content report-page">
+
+    <div class="report-header">
+
+        <h1>{{ title }}</h1>
+
+        <p>
+            {% if title == "Mission Reports" %}
+                Centralized operational and mission performance report.
+            {% else %}
+                Operational analytics and resource performance overview.
+            {% endif %}
+        </p>
+
+        <a href="/dashboard"
+           class="back-link">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <div id="report-content">
+
+        <p class="loading">
+            Loading operational data...
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadReportData
+);
+
+
+async function loadReportData() {
+
+    const container =
+        document.getElementById("report-content");
+
+    try {
+
+        const response =
+            await fetch("/api/offline-data");
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load operational data."
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        if ("error" in data) {
+
+            throw new Error(
+                data.error
+            );
+
+        }
+
+        if ("{{ title }}" === "Mission Reports") {
+
+            renderMissionReports(
+                data
+            );
+
+        }
+
+        else if ("{{ title }}" === "Analytics") {
+
+            renderAnalytics(
+                data
+            );
+
+        }
+
+        else {
+
+            container.innerHTML = `
+                <div class="report-section">
+                    <h2>${escapeHtml("{{ title }}")}</h2>
+                    <p style="color:#91a8ba;">
+                        Module is available from the command platform.
+                    </p>
+                </div>
+            `;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "POLAR COMMAND report error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="report-section">
+                <h2>Data Loading Error</h2>
+
+                <p style="color:#ff6565;">
+                    Unable to load operational data.
+                </p>
+
+                <p style="color:#91a8ba;">
+                    ${escapeHtml(error.message)}
+                </p>
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   MISSION REPORTS
+   ===================================================== */
+
+function renderMissionReports(data) {
+
+    const stations =
+        data.stations || [];
+
+    const inventory =
+        data.inventory || [];
+
+    const personnel =
+        data.personnel || [];
+
+    const cargo =
+        data.cargo || [];
+
+    const equipment =
+        data.equipment || [];
+
+    const emergencies =
+        data.emergencies || [];
+
+    const tasks =
+        data.tasks || [];
+
+    const decisions =
+        data.decisions || [];
+
+    const resourceUsage =
+        data.resource_usage || [];
+
+
+    const critical =
+        inventory.filter(
+            item => item.risk_level === "Critical"
+        ).length;
+
+    const high =
+        inventory.filter(
+            item => item.risk_level === "High"
+        ).length;
+
+    const medium =
+        inventory.filter(
+            item => item.risk_level === "Medium"
+        ).length;
+
+    const low =
+        inventory.filter(
+            item => item.risk_level === "Low"
+        ).length;
+
+
+    const delayedCargo =
+        cargo.filter(
+            item => item.status === "Delayed"
+        ).length;
+
+    const deliveredCargo =
+        cargo.filter(
+            item => item.status === "Delivered"
+        ).length;
+
+
+    const openEmergencies =
+        emergencies.filter(
+            item => item.status === "Open"
+        ).length;
+
+
+    const completedTasks =
+        tasks.filter(
+            item => item.status === "Completed"
+        ).length;
+
+
+    const inProgressTasks =
+        tasks.filter(
+            item => item.status === "In Progress"
+        ).length;
+
+
+    document.getElementById(
+        "report-content"
+    ).innerHTML = `
+
+        <div class="report-grid">
+
+            <div class="report-card">
+                <h3>Active Stations</h3>
+                <div class="number">
+                    ${stations.length}
+                </div>
+            </div>
+
+            <div class="report-card">
+                <h3>Inventory Items</h3>
+                <div class="number">
+                    ${inventory.length}
+                </div>
+            </div>
+
+            <div class="report-card">
+                <h3>Personnel</h3>
+                <div class="number">
+                    ${personnel.length}
+                </div>
+            </div>
+
+            <div class="report-card">
+                <h3>Cargo Records</h3>
+                <div class="number">
+                    ${cargo.length}
+                </div>
+            </div>
+
+            <div class="report-card">
+                <h3>Open Emergencies</h3>
+                <div class="number">
+                    ${openEmergencies}
+                </div>
+            </div>
+
+            <div class="report-card">
+                <h3>Operational Tasks</h3>
+                <div class="number">
+                    ${tasks.length}
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h2>Inventory Risk Summary</h2>
+
+            <table class="report-table">
+
+                <tr>
+                    <th>Risk Level</th>
+                    <th>Items</th>
+                </tr>
+
+                <tr>
+                    <td class="status-danger">
+                        Critical
+                    </td>
+                    <td>${critical}</td>
+                </tr>
+
+                <tr>
+                    <td class="status-danger">
+                        High
+                    </td>
+                    <td>${high}</td>
+                </tr>
+
+                <tr>
+                    <td class="status-warning">
+                        Medium
+                    </td>
+                    <td>${medium}</td>
+                </tr>
+
+                <tr>
+                    <td class="status-good">
+                        Low
+                    </td>
+                    <td>${low}</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h2>Cargo Operations</h2>
+
+            <table class="report-table">
+
+                <tr>
+                    <th>Metric</th>
+                    <th>Count</th>
+                </tr>
+
+                <tr>
+                    <td>Total Cargo</td>
+                    <td>${cargo.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Delivered</td>
+                    <td>${deliveredCargo}</td>
+                </tr>
+
+                <tr>
+                    <td>Delayed</td>
+                    <td>${delayedCargo}</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h2>Response & Decision Status</h2>
+
+            <table class="report-table">
+
+                <tr>
+                    <th>Metric</th>
+                    <th>Count</th>
+                </tr>
+
+                <tr>
+                    <td>Total Decisions</td>
+                    <td>${decisions.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Total Tasks</td>
+                    <td>${tasks.length}</td>
+                </tr>
+
+                <tr>
+                    <td>In Progress</td>
+                    <td>${inProgressTasks}</td>
+                </tr>
+
+                <tr>
+                    <td>Completed</td>
+                    <td>${completedTasks}</td>
+                </tr>
+
+                <tr>
+                    <td>Resource Usage Records</td>
+                    <td>${resourceUsage.length}</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   ANALYTICS
+   ===================================================== */
+
+function renderAnalytics(data) {
+
+    const inventory =
+        data.inventory || [];
+
+    const cargo =
+        data.cargo || [];
+
+    const emergencies =
+        data.emergencies || [];
+
+    const tasks =
+        data.tasks || [];
+
+
+    const riskCounts = {
+
+        Critical:
+            inventory.filter(
+                i => i.risk_level === "Critical"
+            ).length,
+
+        High:
+            inventory.filter(
+                i => i.risk_level === "High"
+            ).length,
+
+        Medium:
+            inventory.filter(
+                i => i.risk_level === "Medium"
+            ).length,
+
+        Low:
+            inventory.filter(
+                i => i.risk_level === "Low"
+            ).length
+
+    };
+
+
+    const maxRisk =
+        Math.max(
+            ...Object.values(riskCounts),
+            1
+        );
+
+
+    const cargoTotal =
+        cargo.length;
+
+    const cargoDelivered =
+        cargo.filter(
+            c => c.status === "Delivered"
+        ).length;
+
+    const cargoDelayed =
+        cargo.filter(
+            c => c.status === "Delayed"
+        ).length;
+
+
+    const taskTotal =
+        tasks.length;
+
+    const taskCompleted =
+        tasks.filter(
+            t => t.status === "Completed"
+        ).length;
+
+    const taskProgress =
+        tasks.filter(
+            t => t.status === "In Progress"
+        ).length;
+
+    const taskAssigned =
+        tasks.filter(
+            t => t.status === "Assigned"
+        ).length;
+
+
+    const openEmergencies =
+        emergencies.filter(
+            e => e.status === "Open"
+        ).length;
+
+
+    document.getElementById(
+        "report-content"
+    ).innerHTML = `
+
+        <div class="report-grid">
+
+            <div class="report-card">
+
+                <h3>Inventory Risk</h3>
+
+                <div class="number">
+                    ${riskCounts.Critical +
+                      riskCounts.High}
+                </div>
+
+                <p style="color:#91a8ba;">
+                    Critical + High
+                </p>
+
+            </div>
+
+
+            <div class="report-card">
+
+                <h3>Cargo Delivery</h3>
+
+                <div class="number">
+                    ${cargoDelivered}
+                </div>
+
+                <p style="color:#91a8ba;">
+                    Delivered / ${cargoTotal}
+                </p>
+
+            </div>
+
+
+            <div class="report-card">
+
+                <h3>Task Completion</h3>
+
+                <div class="number">
+                    ${taskCompleted}
+                </div>
+
+                <p style="color:#91a8ba;">
+                    Completed / ${taskTotal}
+                </p>
+
+            </div>
+
+
+            <div class="report-card">
+
+                <h3>Open Emergencies</h3>
+
+                <div class="number">
+                    ${openEmergencies}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h2>Inventory Risk Distribution</h2>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>Critical</span>
+                    <span>${riskCounts.Critical}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            riskCounts.Critical /
+                            maxRisk * 100
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>High</span>
+                    <span>${riskCounts.High}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            riskCounts.High /
+                            maxRisk * 100
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>Medium</span>
+                    <span>${riskCounts.Medium}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            riskCounts.Medium /
+                            maxRisk * 100
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>Low</span>
+                    <span>${riskCounts.Low}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            riskCounts.Low /
+                            maxRisk * 100
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h2>Task Workflow Analytics</h2>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>Assigned</span>
+                    <span>${taskAssigned}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            taskTotal
+                            ? taskAssigned /
+                              taskTotal * 100
+                            : 0
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>In Progress</span>
+                    <span>${taskProgress}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            taskTotal
+                            ? taskProgress /
+                              taskTotal * 100
+                            : 0
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="bar-row">
+
+                <div class="bar-label">
+                    <span>Completed</span>
+                    <span>${taskCompleted}</span>
+                </div>
+
+                <div class="bar">
+                    <div
+                        class="bar-fill"
+                        style="width:${
+                            taskTotal
+                            ? taskCompleted /
+                              taskTotal * 100
+                            : 0
+                        }%;">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h2>Cargo Performance</h2>
+
+            <table class="report-table">
+
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Total Cargo</td>
+                    <td>${cargoTotal}</td>
+                </tr>
+
+                <tr>
+                    <td>Delivered</td>
+                    <td>${cargoDelivered}</td>
+                </tr>
+
+                <tr>
+                    <td>Delayed</td>
+                    <td>${cargoDelayed}</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   SECURITY
+   ===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value)
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
+
+</script>
+
+</body>
+
+</html>

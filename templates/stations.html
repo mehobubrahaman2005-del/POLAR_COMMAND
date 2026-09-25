@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Station Management - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+{% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <div class="topbar">
+
+        <div>
+            <h1>Station Management</h1>
+
+            <p style="color:#91a8ba;">
+                Manage polar research stations
+            </p>
+        </div>
+
+        <a href="/demo"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Add Station -->
+
+    <div class="panel">
+
+        <h2>Add New Station</h2>
+
+        <form action="/stations/add"
+              method="POST"
+              style="margin-top:20px;">
+
+            <div class="form-grid">
+
+                <input type="text"
+                       name="name"
+                       placeholder="Station Name"
+                       required>
+
+                <input type="text"
+                       name="location"
+                       placeholder="Location"
+                       required>
+
+                <select name="status"
+                        style="padding:12px;
+                               border-radius:8px;
+                               background:#101c26;
+                               color:white;
+                               border:1px solid #263b4a;">
+
+                    <option value="Normal">
+                        Normal
+                    </option>
+
+                    <option value="Warning">
+                        Warning
+                    </option>
+
+                    <option value="Critical">
+                        Critical
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button type="submit"
+                    class="primary-btn">
+
+                + Add Station
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Station List -->
+
+    <div class="panel">
+
+        <h2>Research Stations</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Station</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for station in stations %}
+
+                    <tr>
+
+                        <td>
+                            {{ station["id"] }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ station["name"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ station["location"] }}
+                        </td>
+
+                        <td>
+
+                            {% if station["status"] == "Critical" %}
+
+                                <span class="status red">
+                                    ● Critical
+                                </span>
+
+                            {% elif station["status"] == "Warning" %}
+
+                                <span class="status yellow">
+                                    ● Warning
+                                </span>
+
+                            {% else %}
+
+                                <span class="status green">
+                                    ● Normal
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="/stations/delete/{{ station['id'] }}"
+                               onclick="return confirm('Delete this station?');"
+                               style="color:#f44336;
+                                      text-decoration:none;">
+
+                                Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

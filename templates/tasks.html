@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Response Tasks - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+<div class="main-content">
+
+    <!-- ================= TOP BAR ================= -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Response Tasks</h1>
+
+            <p style="color:#91a8ba;">
+                Emergency response tasks created from Commander decisions
+            </p>
+
+        </div>
+
+
+        <a href="/module/decision"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Decision Center
+
+        </a>
+
+    </div>
+
+
+
+    <!-- ================= TASK PANEL ================= -->
+
+    <div class="panel">
+
+        <h2>Active Response Tasks</h2>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <!-- ================= TABLE HEADER ================= -->
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Task</th>
+
+                        <th>Emergency</th>
+
+                        <th>Decision / Action</th>
+
+                        <th>Assigned To</th>
+
+                        <th>Station</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+
+                <!-- ================= TABLE BODY ================= -->
+
+                <tbody>
+
+
+                {% for task in tasks %}
+
+
+                    <tr>
+
+
+                        <!-- ================= ID ================= -->
+
+                        <td>
+
+                            {{ task["id"] }}
+
+                        </td>
+
+
+
+                        <!-- ================= TASK ================= -->
+
+                        <td>
+
+                            <strong>
+
+                                {{ task["task_title"] }}
+
+                            </strong>
+
+                        </td>
+
+
+
+                        <!-- ================= EMERGENCY ================= -->
+
+                        <td>
+
+                            {% if task["emergency_title"] %}
+
+                                <strong>
+
+                                    {{ task["emergency_title"] }}
+
+                                </strong>
+
+
+                                {% if task["emergency_severity"] %}
+
+                                    <br>
+
+                                    <span style="
+                                        font-size:12px;
+                                        color:#ffb86b;
+                                    ">
+
+                                        Severity:
+                                        {{ task["emergency_severity"] }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- ================= DECISION / ACTION ================= -->
+
+                        <td>
+
+                            {% if task["decision_action"] %}
+
+                                <strong>
+
+                                    {{ task["decision_action"] }}
+
+                                </strong>
+
+
+                                {% if task["decision_option"] %}
+
+                                    <br>
+
+                                    <span style="
+                                        font-size:12px;
+                                        color:#91a8ba;
+                                    ">
+
+                                        {{ task["decision_option"] }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if task["decision_risk"] %}
+
+                                    <br>
+
+                                    <span style="
+                                        font-size:12px;
+                                        color:#ffb86b;
+                                    ">
+
+                                        Risk:
+                                        {{ task["decision_risk"] }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- ================= ASSIGNED TO ================= -->
+
+                        <td>
+
+                            {% if task["assigned_to"] %}
+
+                                {{ task["assigned_to"] }}
+
+                            {% else %}
+
+                                Unassigned
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- ================= STATION ================= -->
+
+                        <td>
+
+                            {{ task["station"] }}
+
+                        </td>
+
+
+
+                        <!-- ================= STATUS ================= -->
+
+                        <td>
+
+
+                            {% if task["status"] == "Completed" %}
+
+
+                                <span class="status green">
+
+                                    ● Completed
+
+                                </span>
+
+
+                            {% elif task["status"] == "In Progress" %}
+
+
+                                <span class="status yellow">
+
+                                    ● In Progress
+
+                                </span>
+
+
+                            {% elif task["status"] == "Assigned" %}
+
+
+                                <span class="status yellow">
+
+                                    ● Assigned
+
+                                </span>
+
+
+                            {% else %}
+
+
+                                <span class="status red">
+
+                                    ● {{ task["status"] }}
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                        <!-- ================= ACTION ================= -->
+
+                        <td>
+
+
+                            {% if task["status"] == "Assigned" %}
+
+
+                                <!-- START TASK -->
+
+                                <a href="/tasks/update/{{ task['id'] }}/In%20Progress"
+                                   class="primary-btn"
+                                   style="
+                                       text-decoration:none;
+                                       padding:8px 12px;
+                                   ">
+
+                                    Start
+
+                                </a>
+
+
+
+                                <!-- RESOURCE USAGE -->
+
+                                <div style="margin-top:12px;">
+
+
+                                    <form action="/tasks/use-resource/{{ task['id'] }}"
+                                          method="POST">
+
+
+                                        <select name="inventory_id"
+                                                required
+                                                style="
+                                                    padding:7px;
+                                                    width:190px;
+                                                ">
+
+
+                                            <option value="">
+
+                                                Select Resource
+
+                                            </option>
+
+
+
+                                            {% for item in inventory %}
+
+
+                                                {% if item["station"] == task["station"] %}
+
+
+                                                    <option value="{{ item['id'] }}">
+
+                                                        {{ item["item_name"] }}
+                                                        —
+                                                        {{ item["quantity"] }}
+                                                        {{ item["unit"] }}
+
+                                                    </option>
+
+
+                                                {% endif %}
+
+
+                                            {% endfor %}
+
+
+                                        </select>
+
+
+
+                                        <br>
+
+
+
+                                        <input type="number"
+                                               name="quantity_used"
+                                               step="0.01"
+                                               min="0.01"
+                                               placeholder="Quantity Used"
+                                               required
+                                               style="
+                                                   padding:7px;
+                                                   width:160px;
+                                                   margin-top:6px;
+                                               ">
+
+
+
+                                        <br>
+
+
+
+                                        <button type="submit"
+                                                class="primary-btn"
+                                                style="
+                                                    margin-top:7px;
+                                                    padding:7px 12px;
+                                                ">
+
+                                            Use Resource
+
+                                        </button>
+
+
+                                    </form>
+
+
+                                </div>
+
+
+
+                            {% elif task["status"] == "In Progress" %}
+
+
+                                <!-- COMPLETE TASK -->
+
+                                <a href="/tasks/update/{{ task['id'] }}/Completed"
+                                   class="primary-btn"
+                                   style="
+                                       text-decoration:none;
+                                       padding:8px 12px;
+                                   ">
+
+                                    Complete
+
+                                </a>
+
+
+
+                                <!-- RESOURCE USAGE -->
+
+                                <div style="margin-top:12px;">
+
+
+                                    <form action="/tasks/use-resource/{{ task['id'] }}"
+                                          method="POST">
+
+
+                                        <select name="inventory_id"
+                                                required
+                                                style="
+                                                    padding:7px;
+                                                    width:190px;
+                                                ">
+
+
+                                            <option value="">
+
+                                                Select Resource
+
+                                            </option>
+
+
+
+                                            {% for item in inventory %}
+
+
+                                                {% if item["station"] == task["station"] %}
+
+
+                                                    <option value="{{ item['id'] }}">
+
+                                                        {{ item["item_name"] }}
+                                                        —
+                                                        {{ item["quantity"] }}
+                                                        {{ item["unit"] }}
+
+                                                    </option>
+
+
+                                                {% endif %}
+
+
+                                            {% endfor %}
+
+
+                                        </select>
+
+
+
+                                        <br>
+
+
+
+                                        <input type="number"
+                                               name="quantity_used"
+                                               step="0.01"
+                                               min="0.01"
+                                               placeholder="Quantity Used"
+                                               required
+                                               style="
+                                                   padding:7px;
+                                                   width:160px;
+                                                   margin-top:6px;
+                                               ">
+
+
+
+                                        <br>
+
+
+
+                                        <button type="submit"
+                                                class="primary-btn"
+                                                style="
+                                                    margin-top:7px;
+                                                    padding:7px 12px;
+                                                ">
+
+                                            Use Resource
+
+                                        </button>
+
+
+                                    </form>
+
+
+                                </div>
+
+
+
+                            {% else %}
+
+
+                                <!-- COMPLETED -->
+
+                                <span class="status green">
+
+                                    ✓ Done
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% else %}
+
+
+                    <!-- ================= NO TASK ================= -->
+
+                    <tr>
+
+                        <td colspan="8"
+                            style="
+                                text-align:center;
+                                color:#91a8ba;
+                                padding:25px;
+                            ">
+
+                            No response tasks found.
+
+                        </td>
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const path = window.location.pathname;
+
+    console.log("TASK PAGE:", path);
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const params = new URLSearchParams(window.location.search);
+    const taskStatus = params.get("task_status");
+    const taskId = params.get("task_id");
+
+    if (!taskStatus || !taskId) return;
+
+    let message = "";
+
+    if (taskStatus === "In Progress") {
+        message = "Task #" + taskId + " has been started.";
+    }
+    else if (taskStatus === "Completed") {
+        message = "Task #" + taskId + " has been completed.";
+    }
+    else if (taskStatus === "Assigned") {
+        message = "Task #" + taskId + " has been assigned.";
+    }
+
+    if (message) {
+        showPolarNotification(
+            "📋 Task Status Updated",
+            message
+        );
+    }
+
+    window.history.replaceState(
+        {},
+        document.title,
+        "/tasks"
+    );
+
+});
+</script>
+
+</body>
+
+</html>

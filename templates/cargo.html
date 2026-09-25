@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Cargo Tracking - POLAR COMMAND</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static',
+      filename='css/style.css') }}">
+```
+
+</head>
+
+<body>
+
+```
+{% include 'sidebar.html' %}
+```
+
+<div class="main-content">
+
+```
+<!-- Header -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>Cargo Tracking</h1>
+
+        <p style="color:#91a8ba;">
+            Track expedition cargo and logistics
+        </p>
+
+    </div>
+
+    <a href="/demo"
+       style="color:#7dc8ff;
+              text-decoration:none;">
+
+        ← Dashboard
+
+    </a>
+
+</div>
+
+
+<!-- Add Cargo -->
+
+<div class="panel">
+
+    <h2>Add New Cargo</h2>
+
+    <form action="/cargo/add"
+          method="POST"
+          style="margin-top:20px;">
+
+        <div class="form-grid">
+
+            <input type="text"
+                   name="cargo_name"
+                   placeholder="Cargo Name"
+                   required>
+
+            <input type="text"
+                   name="source"
+                   placeholder="Source"
+                   required>
+
+            <input type="text"
+                   name="destination"
+                   placeholder="Destination"
+                   required>
+
+            <input type="number"
+                   name="weight"
+                   placeholder="Weight (kg)"
+                   step="0.01"
+                   required>
+
+            <select name="priority"
+                    style="padding:12px;
+                           border-radius:8px;
+                           background:#101c26;
+                           color:white;
+                           border:1px solid #263b4a;">
+
+                <option value="Low">
+                    Low Priority
+                </option>
+
+                <option value="Medium">
+                    Medium Priority
+                </option>
+
+                <option value="High">
+                    High Priority
+                </option>
+
+                <option value="Critical">
+                    Critical
+                </option>
+
+            </select>
+
+
+            <select name="status"
+                    style="padding:12px;
+                           border-radius:8px;
+                           background:#101c26;
+                           color:white;
+                           border:1px solid #263b4a;">
+
+                <option value="Preparing">
+                    Preparing
+                </option>
+
+                <option value="In Transit">
+                    In Transit
+                </option>
+
+                <option value="Delivered">
+                    Delivered
+                </option>
+
+                <option value="Delayed">
+                    Delayed
+                </option>
+
+            </select>
+
+        </div>
+
+        <button type="submit"
+                class="primary-btn">
+
+            + Add Cargo
+
+        </button>
+
+    </form>
+
+</div>
+
+
+<!-- Cargo Operations -->
+
+<div class="panel">
+
+    <h2>Cargo Operations</h2>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Cargo</th>
+                    <th>Source</th>
+                    <th>Destination</th>
+                    <th>Weight</th>
+                    <th>Priority</th>
+                    <th>Tracking Status</th>
+                    <th>Current Location</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for item in cargo %}
+
+                <tr>
+
+                    <td>
+                        {{ item["id"] }}
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+                            {{ item["cargo_name"] }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+                        {{ item["source"] }}
+                    </td>
+
+
+                    <td>
+                        {{ item["destination"] }}
+                    </td>
+
+
+                    <td>
+                        {{ item["weight"] }} kg
+                    </td>
+
+
+                    <!-- Priority -->
+
+                    <td>
+
+                        {% if item["priority"] == "Critical" %}
+
+                            <span class="status red">
+                                ● Critical
+                            </span>
+
+                        {% elif item["priority"] == "High" %}
+
+                            <span class="status yellow">
+                                ● High
+                            </span>
+
+                        {% elif item["priority"] == "Medium" %}
+
+                            <span class="status yellow">
+                                ● Medium
+                            </span>
+
+                        {% else %}
+
+                            <span class="status green">
+                                ● Low
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- Tracking Status -->
+
+                    <td>
+
+                        {% set tracking =
+                            item["tracking_status"]
+                            or item["status"]
+                            or "Planned"
+                        %}
+
+
+                        {% if tracking == "Delivered" %}
+
+                            <span class="status green">
+                                ● Delivered
+                            </span>
+
+
+                        {% elif tracking == "At Station" %}
+
+                            <span class="status green">
+                                ● At Station
+                            </span>
+
+
+                        {% elif tracking == "In Transit" %}
+
+                            <span class="status yellow">
+                                ● In Transit
+                            </span>
+
+
+                        {% elif tracking == "Loaded" %}
+
+                            <span class="status yellow">
+                                ● Loaded
+                            </span>
+
+
+                        {% elif tracking == "Delayed" %}
+
+                            <span class="status red">
+                                ● Delayed
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="status">
+                                ● Planned
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- Current Location -->
+
+                    <td>
+
+                        {% if item["current_location"] %}
+
+                            {{ item["current_location"] }}
+
+                        {% else %}
+
+                            <span style="color:#91a8ba;">
+                                Not updated
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- Last Updated -->
+
+                    <td>
+
+                        {% if item["last_updated"] %}
+
+                            <span style="font-size:13px;">
+                                {{ item["last_updated"] }}
+                            </span>
+
+                        {% else %}
+
+                            <span style="color:#91a8ba;">
+                                Not updated
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- Actions -->
+
+                    <td>
+
+                        <!-- Update Tracking -->
+
+                        <details>
+
+                            <summary
+                                style="cursor:pointer;
+                                       color:#7dc8ff;
+                                       margin-bottom:10px;">
+
+                                Update Tracking
+
+                            </summary>
+
+
+                            <form
+                                action="/cargo/update/{{ item['id'] }}"
+                                method="POST"
+                                style="margin-top:10px;
+                                       min-width:190px;">
+
+                                <select
+                                    name="tracking_status"
+                                    required
+                                    style="width:100%;
+                                           padding:9px;
+                                           margin-bottom:8px;
+                                           border-radius:7px;
+                                           background:#101c26;
+                                           color:white;
+                                           border:1px solid #263b4a;">
+
+                                    <option value="Planned"
+                                        {% if item["tracking_status"] == "Planned" %}
+                                            selected
+                                        {% endif %}>
+                                        Planned
+                                    </option>
+
+                                    <option value="Loaded"
+                                        {% if item["tracking_status"] == "Loaded" %}
+                                            selected
+                                        {% endif %}>
+                                        Loaded
+                                    </option>
+
+                                    <option value="In Transit"
+                                        {% if item["tracking_status"] == "In Transit" %}
+                                            selected
+                                        {% endif %}>
+                                        In Transit
+                                    </option>
+
+                                    <option value="At Station"
+                                        {% if item["tracking_status"] == "At Station" %}
+                                            selected
+                                        {% endif %}>
+                                        At Station
+                                    </option>
+
+                                    <option value="Delivered"
+                                        {% if item["tracking_status"] == "Delivered" %}
+                                            selected
+                                        {% endif %}>
+                                        Delivered
+                                    </option>
+
+                                </select>
+
+
+                                <input
+                                    type="text"
+                                    name="current_location"
+                                    value="{{ item['current_location'] or '' }}"
+                                    placeholder="Current Location"
+                                    required
+                                    style="width:100%;
+                                           box-sizing:border-box;
+                                           padding:9px;
+                                           margin-bottom:8px;
+                                           border-radius:7px;
+                                           background:#101c26;
+                                           color:white;
+                                           border:1px solid #263b4a;">
+
+
+                                <button
+                                    type="submit"
+                                    class="primary-btn"
+                                    style="width:100%;
+                                           padding:9px;">
+
+                                    Update
+
+                                </button>
+
+                            </form>
+
+                        </details>
+
+
+                        <!-- Delete -->
+
+                        <a
+                            href="/cargo/delete/{{ item['id'] }}"
+                            onclick="return confirm('Delete this cargo?');"
+                            style="color:#f44336;
+                                   text-decoration:none;">
+
+                            Delete
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="10"
+                        style="text-align:center;
+                               color:#91a8ba;">
+
+                        No cargo records found.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

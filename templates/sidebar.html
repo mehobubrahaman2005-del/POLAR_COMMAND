@@ -1,0 +1,186 @@
+<!-- ================= GLOBAL CONNECTION STATUS ================= -->
+
+<div id="global-connection-status"
+     style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 99999;
+        padding: 9px 16px;
+        border-radius: 22px;
+        font-size: 14px;
+        font-weight: 600;
+        background: #d4edda;
+        color: #155724;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+     ">
+    🟢 Online
+</div>
+
+<script>
+function updateGlobalConnectionStatus() {
+
+    const indicator =
+        document.getElementById("global-connection-status");
+
+    if (!indicator) {
+        return;
+    }
+
+    if (navigator.onLine) {
+
+        indicator.innerHTML = "🟢 Online";
+
+        indicator.style.background = "#d4edda";
+        indicator.style.color = "#155724";
+
+    } else {
+
+        indicator.innerHTML = "🟠 Offline Mode";
+
+        indicator.style.background = "#fff3cd";
+        indicator.style.color = "#856404";
+    }
+}
+
+window.addEventListener(
+    "online",
+    updateGlobalConnectionStatus
+);
+
+window.addEventListener(
+    "offline",
+    updateGlobalConnectionStatus
+);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    updateGlobalConnectionStatus
+);
+</script>
+
+<aside class="sidebar">
+
+    <!-- ================= BRAND ================= -->
+
+    <div class="brand">
+        ❄️
+
+        <div>
+            <h2>POLAR</h2>
+            <span>COMMAND</span>
+        </div>
+    </div>
+
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <nav>
+
+        <div class="nav-section-title">
+            MAIN
+        </div>
+
+        <a href="/dashboard" class="{% if request.path in ['/dashboard', '/demo'] %}active{% endif %}">
+    🏠 Dashboard
+        </a>
+
+
+        <div class="nav-section-title">
+            OPERATIONS
+        </div>
+
+        <a href="/module/stations" class="{% if request.path == '/module/stations' %}active{% endif %}">
+    🏔️ Stations
+</a>
+
+        <a href="/module/inventory" class="{% if request.path == '/module/inventory' %}active{% endif %}">
+            📦 Inventory
+        </a>
+
+        <a href="/module/cargo" class="{% if request.path == '/module/cargo' %}active{% endif %}">
+            🚢 Cargo
+        </a>
+
+        <a href="/module/personnel" class="{% if request.path == '/module/personnel' %}active{% endif %}">
+            👥 Personnel
+        </a>
+
+        <a href="/module/equipment" class="{% if request.path == '/module/equipment' %}active{% endif %}">
+            🔧 Equipment
+        </a>
+
+
+        <div class="nav-section-title">
+            RESPONSE
+        </div>
+
+        <a href="/module/emergency" class="{% if request.path == '/module/emergency' %}active{% endif %}">
+            🚨 Emergency Center
+        </a>
+
+        <a href="/tasks" class="{% if request.path == '/tasks' %}active{% endif %}">
+            📋 Tasks
+        </a>
+
+
+        <div class="nav-section-title">
+            DECISION &amp; PLANNING
+        </div>
+
+        <a href="/module/decision" class="{% if request.path == '/module/decision' %}active{% endif %}">
+            🧠 Decision Center
+        </a>
+
+        <a href="/simulator" class="{% if request.path == '/simulator' %}active{% endif %}">
+            🔮 What-If Simulator
+        </a>
+
+        <a href="/module/emergency">
+        🔗 Resource Matching
+        </a>
+
+
+        <div class="nav-section-title">
+            MONITORING
+        </div>
+
+        <a href="/module/reports" class="{% if request.path == '/module/reports' %}active{% endif %}">
+            📄 Reports
+        </a>
+
+        <a href="/module/analytics" class="{% if request.path == '/module/analytics' %}active{% endif %}">
+            📊 Analytics
+        </a>
+
+        <a href="/resource-history" class="{% if request.path == '/resource-history' %}active{% endif %}">
+            📜 Resource History
+        </a>
+
+
+        <div class="nav-section-title">
+            SYSTEM
+        </div>
+
+        <a href="/conflicts" class="{% if request.path == '/conflicts' %}active{% endif %}">
+            ⚠️ Sync &amp; Conflicts
+        </a>
+
+        <a href="/audit" class="{% if request.path == '/audit' %}active{% endif %}">
+            📋 Audit Log
+        </a>
+
+    </nav>
+
+
+    <!-- ================= LOGOUT ================= -->
+
+    <div class="sidebar-bottom">
+
+        <a href="/logout">
+            🚪 Logout
+        </a>
+
+    </div>
+
+</aside>

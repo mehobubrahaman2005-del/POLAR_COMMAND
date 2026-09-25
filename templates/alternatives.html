@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Alternative Actions - POLAR COMMAND</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="main-content">
+
+    <!-- Header -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>Alternative Action Generator</h1>
+
+            <p style="color:#91a8ba;">
+
+                Possible responses generated from the
+                simulation scenario
+
+            </p>
+
+        </div>
+
+        <a href="/simulator"
+           style="color:#7dc8ff;
+                  text-decoration:none;">
+
+            ← Simulator
+
+        </a>
+
+    </div>
+
+
+    <!-- Scenario -->
+
+    <div class="panel">
+
+        <h2>Simulation Scenario</h2>
+
+        <p style="color:#91a8ba;
+                  margin-top:10px;">
+
+            Station:
+
+            <strong style="color:white;">
+                {{ station }}
+            </strong>
+
+            &nbsp; | &nbsp;
+
+            Resupply Delay:
+
+            <strong style="color:#ffc107;">
+                {{ delay_days }} days
+            </strong>
+
+        </p>
+
+    </div>
+
+
+    <!-- Critical Resources -->
+
+    <div class="panel">
+
+        <h2>⚠️ At-Risk Resources</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Resource</th>
+                        <th>Expected Quantity</th>
+                        <th>Unit</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in critical_items %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item["name"] }}
+                            </strong>
+                        </td>
+
+                        <td style="color:#f44336;">
+
+                            {{ "%.1f"|format(
+                                item["expected"]
+                            ) }}
+
+                        </td>
+
+                        <td>
+                            {{ item["unit"] }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="3"
+                            style="text-align:center;
+                                   color:#4caf50;">
+
+                            No critical resource shortage detected.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Alternatives -->
+
+    <div class="panel">
+
+        <h2>🧠 Recommended Response Options</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Option</th>
+                        <th>Action</th>
+                        <th>Risk</th>
+                        <th>Time</th>
+                        <th>Resources</th>
+                        <th>Decision</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for option in alternatives %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                {{ option["name"] }}
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                {{ option["title"] }}
+                            </strong>
+
+                            <br>
+
+                            <small style="color:#91a8ba;">
+
+                                {{ option["description"] }}
+
+                            </small>
+
+                        </td>
+
+                        <td>
+
+                            {% if option["risk"] == "Low" %}
+
+                                <span class="status green">
+                                    ● Low
+                                </span>
+
+                            {% else %}
+
+                                <span class="status yellow">
+                                    ● {{ option["risk"] }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ option["time"] }}
+                        </td>
+
+                        <td>
+                            {{ option["resource"] }}
+                        </td>
+
+                        <td>
+
+                            <a href="/module/decision"
+                               class="primary-btn"
+                               style="text-decoration:none;
+                                      padding:8px 12px;">
+
+                                Review
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Existing Cargo -->
+
+    <div class="panel">
+
+        <h2>📦 Incoming Cargo</h2>
+
+        {% if cargo %}
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Cargo</th>
+                        <th>Source</th>
+                        <th>Weight</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for item in cargo %}
+
+                    <tr>
+
+                        <td>
+                            {{ item["cargo_name"] }}
+                        </td>
+
+                        <td>
+                            {{ item["source"] }}
+                        </td>
+
+                        <td>
+                            {{ item["weight"] }} kg
+                        </td>
+
+                        <td>
+                            {{ item["priority"] }}
+                        </td>
+
+                        <td>
+                            {{ item["status"] }}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <p style="color:#91a8ba;
+                  margin-top:15px;">
+
+            No incoming cargo found.
+
+        </p>
+
+        {% endif %}
+
+    </div>
+
+
+        <!-- Continue -->
+
+    <div class="panel"
+         style="text-align:center;">
+
+        <h2>Commander Review</h2>
+
+        <p style="color:#91a8ba;
+                  margin:10px 0 20px;">
+
+            Review the alternatives before creating
+            an operational decision.
+
+        </p>
+
+
+        <!-- Compare All Options -->
+
+        <form action="/simulator/compare"
+              method="POST"
+              style="margin-bottom:20px;">
+
+            <input
+                type="hidden"
+                name="station"
+                value="{{ station }}"
+            >
+
+            <input
+                type="hidden"
+                name="delay_days"
+                value="{{ delay_days }}"
+            >
+
+            <button
+                type="submit"
+                class="primary-btn"
+                style="width:100%;"
+            >
+
+                Compare All Options →
+
+            </button>
+
+        </form>
+
+
+        <!-- Open Decision Center -->
+
+        <a href="/module/decision"
+           class="primary-btn"
+           style="display:inline-block;
+                  text-decoration:none;">
+
+            Open Decision Center →
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
