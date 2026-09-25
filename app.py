@@ -304,7 +304,7 @@ def login():
     # Demo Commander account
     if (
         email == "commander@polar.local"
-        and password == "commander123"
+        and password == "commander123@"
     ):
 
         session["logged_in"] = True
