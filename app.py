@@ -307,6 +307,7 @@ def login():
         and password == "commander123@"
     ):
         session.pop("demo_mode", None)
+
         session["logged_in"] = True
         session["email"] = email
         session["role"] = "Commander"
@@ -323,6 +324,7 @@ def login():
         and password == "operator123@"
     ):
         session.pop("demo_mode", None)
+        
         session["logged_in"] = True
         session["email"] = email
         session["role"] = "Operator"
@@ -372,29 +374,30 @@ def protect_routes():
     # ==========================================
 
     if session.get("demo_mode"):
-
-        # These routes can modify/delete data
-        demo_blocked = [
-            "/backup",
-            "/backups"
-            "/inventory/delete"
-        ]
-
+        # Block all data-changing routes
         if (
-    request.path.startswith("/inventory/delete/")
-    or request.path.startswith("/backup")
-    or request.path.startswith("/recovery/")
-    or request.path == "/audit"
-    or request.path == "/conflicts"
-):
+            request.path.startswith("/inventory/delete/")
+            or request.path.startswith("/inventory/add")
+            or request.path.startswith("/inventory/update")
+            or request.path.startswith("/cargo/delete/")
+            or request.path.startswith("/personnel/delete/")
+            or request.path.startswith("/equipment/delete/")
+            or request.path.startswith("/stations/delete/")
+            or request.path.startswith("/emergency/delete/")
+            or request.path.startswith("/tasks/delete/")
+            or request.path.startswith("/backup")
+            or request.path.startswith("/recovery/")
+            or request.path.startswith("/api/conflict/resolve")
+            or request.path.startswith("/api/sync")
+        ):
             return redirect("/demo")
 
-        # Allow only GET requests in Demo Mode
-        if request.method == "GET":
-            return None
+        # Block POST / PUT / PATCH / DELETE requests
+        if request.method in ["POST", "PUT", "PATCH", "DELETE"]:
+            return redirect("/demo")
 
-        # Block POST/PUT/PATCH/DELETE
-        return redirect("/demo")
+        # Allow viewing pages
+        return None
 
     # ==========================================
     # NORMAL LOGIN REQUIRED
@@ -416,24 +419,6 @@ def protect_routes():
         session.get("role") == "Operator"
         and request.path in operator_blocked
     ):
-        return redirect("/dashboard")
-
-    return None
-
-    # ==========================================
-    # OPERATOR ACCESS CONTROL
-    # ==========================================
-
-    operator_blocked = [
-        "/audit",
-        "/conflicts"
-    ]
-
-    if (
-        session.get("role") == "Operator"
-        and request.path in operator_blocked
-    ):
-
         return redirect("/dashboard")
 
     return None
