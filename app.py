@@ -307,7 +307,6 @@ def login():
         and password == "commander123@"
     ):
         session.pop("demo_mode", None)
-
         session["logged_in"] = True
         session["email"] = email
         session["role"] = "Commander"
@@ -324,7 +323,6 @@ def login():
         and password == "operator123@"
     ):
         session.pop("demo_mode", None)
-        
         session["logged_in"] = True
         session["email"] = email
         session["role"] = "Operator"
@@ -374,29 +372,42 @@ def protect_routes():
     # ==========================================
 
     if session.get("demo_mode"):
-        # Block all data-changing routes
+
+        # Block admin / internal pages
+        if request.path in [
+            "/audit",
+            "/conflicts",
+            "/backups"
+        ]:
+            return redirect("/demo")
+
+        # Block data-changing GET routes
         if (
             request.path.startswith("/inventory/delete/")
-            or request.path.startswith("/inventory/add")
-            or request.path.startswith("/inventory/update")
+            or request.path.startswith("/inventory/recalculate")
+            or request.path.startswith("/stations/delete/")
             or request.path.startswith("/cargo/delete/")
             or request.path.startswith("/personnel/delete/")
             or request.path.startswith("/equipment/delete/")
-            or request.path.startswith("/stations/delete/")
             or request.path.startswith("/emergency/delete/")
-            or request.path.startswith("/tasks/delete/")
+            or request.path.startswith("/decision/generate/")
+            or request.path.startswith("/decision/select/")
+            or request.path.startswith("/decision/reset")
             or request.path.startswith("/backup")
             or request.path.startswith("/recovery/")
-            or request.path.startswith("/api/conflict/resolve")
-            or request.path.startswith("/api/sync")
         ):
             return redirect("/demo")
 
-        # Block POST / PUT / PATCH / DELETE requests
-        if request.method in ["POST", "PUT", "PATCH", "DELETE"]:
+        # Block all data-changing requests
+        if request.method in [
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+        ]:
             return redirect("/demo")
 
-        # Allow viewing pages
+        # Allow read-only pages
         return None
 
     # ==========================================
@@ -422,6 +433,7 @@ def protect_routes():
         return redirect("/dashboard")
 
     return None
+
 
 # =========================================================
 # DEMO DASHBOARD
