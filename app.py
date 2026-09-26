@@ -424,6 +424,7 @@ def protect_routes():
     operator_blocked = [
         "/audit",
         "/conflicts"
+        "/backups",
     ]
 
     if (
