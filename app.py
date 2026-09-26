@@ -424,7 +424,6 @@ def protect_routes():
     operator_blocked = [
         "/audit",
         "/conflicts"
-        "/backups",
     ]
 
     if (
@@ -4596,7 +4595,7 @@ def backup_database():
 @app.route("/backups")
 def list_backups():
 
-    if session.get("role") != "Commander":
+    if session.get("role") not in ["Commander", "Operator"]:
         return redirect("/dashboard")
 
     backup_folder = "backups"
@@ -4636,7 +4635,8 @@ def list_backups():
 
     return render_template(
         "backups.html",
-        backups=backups
+        backups=backups,
+        can_manage_backups=(session.get("role") == "Commander")
     )
 
 # =========================================================
