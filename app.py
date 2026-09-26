@@ -451,7 +451,7 @@ def dynamic_user_header(response):
 
         if session.get("demo_mode") or session.get("role") == "Demo":
             display_name = "Demo Commander"
-            display_role = "COMMANDER"
+            display_role = "DEMO COMMANDER"
             avatar = "D"
 
         elif session.get("role") == "Operator":
