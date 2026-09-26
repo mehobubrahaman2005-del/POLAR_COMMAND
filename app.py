@@ -436,6 +436,147 @@ def protect_routes():
 
 
 # =========================================================
+# DYNAMIC USER HEADER DISPLAY
+# =========================================================
+
+@app.after_request
+def dynamic_user_header(response):
+
+    # Keep the top-right identity consistent with the active session.
+    if "text/html" not in response.content_type:
+        return response
+
+    try:
+        html = response.get_data(as_text=True)
+
+        if session.get("demo_mode") or session.get("role") == "Demo":
+            display_name = "Demo Commander"
+            display_role = "COMMANDER"
+            avatar = "D"
+
+        elif session.get("role") == "Operator":
+            display_name = "Operator"
+            display_role = "OPERATOR"
+            avatar = "O"
+
+        elif session.get("role") == "Commander":
+            display_name = "Commander"
+            display_role = "COMMANDER"
+            avatar = "C"
+
+        else:
+            return response
+
+        import re
+
+        # Update only the common top-right user-info block so that
+        # unrelated page text is never changed.
+        def replace_user_info(match):
+            block = match.group(0)
+
+            block = re.sub(
+                r'(<div\s+class=["\']user-avatar["\']\s*>).*?(</div>)',
+                lambda m: m.group(1) + "\n                    " + avatar + "\n                " + m.group(2),
+                block,
+                count=1,
+                flags=re.IGNORECASE | re.DOTALL
+            )
+
+            block = re.sub(
+                r'(<strong\s*>).*?(</strong>)',
+                lambda m: m.group(1) + "\n                        " + display_name + "\n                    " + m.group(2),
+                block,
+                count=1,
+                flags=re.IGNORECASE | re.DOTALL
+            )
+
+            block = re.sub(
+                r'(<small\s*>).*?(</small>)',
+                lambda m: m.group(1) + "\n                        " + display_role + "\n                    " + m.group(2),
+                block,
+                count=1,
+                flags=re.IGNORECASE | re.DOTALL
+            )
+
+            return block
+
+        html = re.sub(
+            r'<div\s+class=["\']user-info["\'].*?</div>\s*</div>',
+            replace_user_info,
+            html,
+            count=0,
+            flags=re.IGNORECASE | re.DOTALL
+        )
+
+        response.set_data(html)
+
+    except Exception as e:
+        print("Dynamic user header error:", e)
+
+    return response
+
+
+# =========================================================
+
+@app.after_request
+def dynamic_user_header(response):
+
+    # Update the common top-right user display dynamically
+    # for Commander, Operator and Demo Mode.
+    if "text/html" not in response.content_type:
+        return response
+
+    try:
+        html = response.get_data(as_text=True)
+
+        if session.get("demo_mode") or session.get("role") == "Demo":
+            display_name = "Demo Commander"
+            display_role = "COMMANDER"
+            avatar = "C"
+
+        elif session.get("role") == "Operator":
+            display_name = "Operator"
+            display_role = "OPERATOR"
+            avatar = "O"
+
+        elif session.get("role") == "Commander":
+            display_name = "Commander"
+            display_role = "COMMANDER"
+            avatar = "C"
+
+        else:
+            return response
+
+        # Replace the common hard-coded header values used by the
+        # existing page templates without changing page layouts.
+        html = html.replace(
+            "Demo Commander",
+            display_name
+        )
+
+        html = html.replace(
+            "<small>\n                        COMMANDER\n                    </small>",
+            "<small>\n                        " + display_role + "\n                    </small>"
+        )
+
+        import re
+
+        html = re.sub(
+            r'(<div\s+class=["\']user-avatar["\']\s*>)(.*?)(</div>)',
+            lambda m: m.group(1) + "\n                    " + avatar + "\n                " + m.group(3),
+            html,
+            flags=re.IGNORECASE | re.DOTALL
+        )
+
+        response.set_data(html)
+
+    except Exception as e:
+        print("Dynamic user header error:", e)
+
+    return response
+
+
+# =========================================================
 # DEMO DASHBOARD
 # =========================================================
 
