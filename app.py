@@ -354,11 +354,13 @@ def login():
 def protect_routes():
 
     public_routes = [
-        "/",
-        "/login",
-        "/service-worker.js"
+    "/",
+    "/login",
+    "/demo",
+    "/dashboard",
+    "/service-worker.js"
     ]
-
+    
     if request.path.startswith("/static/"):
         return None
 
