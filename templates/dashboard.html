@@ -42,23 +42,43 @@
 
             <div class="user-info">
 
-                <div class="user-avatar">
-                    C
-                </div>
+    <div class="user-avatar">
+        {% if session.get("demo_mode") %}
+            D
+        {% elif session.get("role") == "Commander" %}
+            C
+        {% elif session.get("role") == "Operator" %}
+            O
+        {% else %}
+            U
+        {% endif %}
+    </div>
 
-                <div>
+    <div>
 
-                    <strong>
-                        Demo Commander
-                    </strong>
+        <strong>
+            {% if session.get("demo_mode") %}
+                Demo Commander
+            {% elif session.get("role") == "Commander" %}
+                Commander
+            {% elif session.get("role") == "Operator" %}
+                Operator
+            {% else %}
+                User
+            {% endif %}
+        </strong>
 
-                    <small>
-                        COMMANDER
-                    </small>
+        <small>
+            {% if session.get("demo_mode") %}
+                DEMO MODE
+            {% else %}
+                {{ session.get("role", "USER")|upper }}
+            {% endif %}
+        </small>
 
-                </div>
+    </div>
 
-            </div>
+</div>
 
         </header>
 
