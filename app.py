@@ -306,7 +306,7 @@ def login():
         email == "commander@polar.local"
         and password == "commander123@"
     ):
-
+        session.pop("demo_mode", None)
         session["logged_in"] = True
         session["email"] = email
         session["role"] = "Commander"
@@ -322,7 +322,7 @@ def login():
         email == "operator@polar.local"
         and password == "operator123@"
     ):
-
+        session.pop("demo_mode", None)
         session["logged_in"] = True
         session["email"] = email
         session["role"] = "Operator"
