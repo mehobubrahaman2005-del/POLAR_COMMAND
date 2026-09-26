@@ -446,11 +446,11 @@ def protect_routes():
 def demo():
 
     session["demo_mode"] = True
-    session["logged_in"] = False
-    session.pop("role", None)
-    session.pop("email", None)
+    session["logged_in"] = True
+    session["role"] = "Demo"
+    session["email"] = "demo@polar.local"
 
-    conn = get_db()
+    return redirect("/dashboard")
 
 @app.route("/dashboard")
 def dashboard():
@@ -482,41 +482,6 @@ def dashboard():
         SELECT *
         FROM cargo
     """).fetchall()
-
-    conn.close()
-
-
-    # Recalculate inventory risks
-    recalculate_inventory_risks(
-        conn
-    )
-
-    conn.commit()
-
-
-    stations = conn.execute("""
-        SELECT *
-        FROM stations
-    """).fetchall()
-
-
-    inventory = conn.execute("""
-        SELECT *
-        FROM inventory
-    """).fetchall()
-
-
-    personnel = conn.execute("""
-        SELECT *
-        FROM personnel
-    """).fetchall()
-
-
-    cargo = conn.execute("""
-        SELECT *
-        FROM cargo
-    """).fetchall()
-
 
     conn.close()
 
