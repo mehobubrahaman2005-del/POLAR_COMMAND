@@ -452,6 +452,39 @@ def demo():
 
     conn = get_db()
 
+@app.route("/dashboard")
+def dashboard():
+
+    if not session.get("logged_in"):
+        return redirect("/")
+
+    conn = get_db()
+
+    recalculate_inventory_risks(conn)
+    conn.commit()
+
+    stations = conn.execute("""
+        SELECT *
+        FROM stations
+    """).fetchall()
+
+    inventory = conn.execute("""
+        SELECT *
+        FROM inventory
+    """).fetchall()
+
+    personnel = conn.execute("""
+        SELECT *
+        FROM personnel
+    """).fetchall()
+
+    cargo = conn.execute("""
+        SELECT *
+        FROM cargo
+    """).fetchall()
+
+    conn.close()
+
 
     # Recalculate inventory risks
     recalculate_inventory_risks(
