@@ -384,6 +384,8 @@ def protect_routes():
     request.path.startswith("/inventory/delete/")
     or request.path.startswith("/backup")
     or request.path.startswith("/recovery/")
+    or request.path == "/audit"
+    or request.path == "/conflicts"
 ):
             return redirect("/demo")
 
