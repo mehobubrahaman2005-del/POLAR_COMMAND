@@ -354,21 +354,69 @@ def login():
 def protect_routes():
 
     public_routes = [
-    "/",
-    "/login",
-    "/demo",
-    "/dashboard",
-    "/service-worker.js"
+        "/",
+        "/login",
+        "/demo",
+        "/service-worker.js"
     ]
-    
+
     if request.path.startswith("/static/"):
         return None
 
+    # Public pages
     if request.path in public_routes:
         return None
 
+    # ==========================================
+    # DEMO MODE - READ ONLY ACCESS
+    # ==========================================
+
+    if session.get("demo_mode"):
+
+        # These routes can modify/delete data
+        demo_blocked = [
+            "/backup",
+            "/backups"
+            "/inventory/delete"
+        ]
+
+        if (
+    request.path.startswith("/inventory/delete/")
+    or request.path.startswith("/backup")
+    or request.path.startswith("/recovery/")
+):
+            return redirect("/demo")
+
+        # Allow only GET requests in Demo Mode
+        if request.method == "GET":
+            return None
+
+        # Block POST/PUT/PATCH/DELETE
+        return redirect("/demo")
+
+    # ==========================================
+    # NORMAL LOGIN REQUIRED
+    # ==========================================
+
     if not session.get("logged_in"):
         return redirect("/")
+
+    # ==========================================
+    # OPERATOR ACCESS CONTROL
+    # ==========================================
+
+    operator_blocked = [
+        "/audit",
+        "/conflicts"
+    ]
+
+    if (
+        session.get("role") == "Operator"
+        and request.path in operator_blocked
+    ):
+        return redirect("/dashboard")
+
+    return None
 
     # ==========================================
     # OPERATOR ACCESS CONTROL
@@ -393,8 +441,12 @@ def protect_routes():
 # =========================================================
 
 @app.route("/demo")
-@app.route("/dashboard")
 def demo():
+
+    session["demo_mode"] = True
+    session["logged_in"] = False
+    session.pop("role", None)
+    session.pop("email", None)
 
     conn = get_db()
 
