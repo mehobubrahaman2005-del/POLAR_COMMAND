@@ -93,7 +93,7 @@ window.addEventListener("online", async () => {
 
     await syncPendingChanges();
 
-    await syncServerDataToLocal();
+    await syncServerDataToLocal(true);
 
 });
 
@@ -283,14 +283,50 @@ document.addEventListener(
 
 // ==========================================
 // 5. SERVER → LOCAL INDEXEDDB SYNC
+// OPTIMIZED
 // ==========================================
 
-async function syncServerDataToLocal() {
+async function syncServerDataToLocal(force = false) {
 
     if (!navigator.onLine) {
 
         console.log(
             "POLAR COMMAND: Offline. Server sync skipped."
+        );
+
+        return;
+
+    }
+
+    /*
+     * Avoid downloading the complete server database
+     * repeatedly during rapid page navigation.
+     *
+     * First sync = always allowed.
+     * Normal startup sync = once every 60 seconds.
+     * Forced sync = always allowed.
+     */
+
+    const SYNC_INTERVAL = 60 * 1000;
+
+    const lastSync =
+        Number(
+            sessionStorage.getItem(
+                "POLAR_LAST_SERVER_SYNC"
+            ) || 0
+        );
+
+    const now =
+        Date.now();
+
+    if (
+        !force &&
+        lastSync > 0 &&
+        (now - lastSync) < SYNC_INTERVAL
+    ) {
+
+        console.log(
+            "POLAR COMMAND: Server sync skipped - recent sync already completed."
         );
 
         return;
@@ -405,6 +441,17 @@ async function syncServerDataToLocal() {
 
         transaction.oncomplete =
             function() {
+
+                /*
+                 * Save successful sync time
+                 * only after IndexedDB write succeeds.
+                 */
+
+                sessionStorage.setItem(
+                    "POLAR_LAST_SERVER_SYNC",
+                    String(Date.now())
+                );
+
 
                 console.log(
                     "POLAR COMMAND: Server data saved to IndexedDB."
