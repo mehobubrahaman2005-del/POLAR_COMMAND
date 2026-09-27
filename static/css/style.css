@@ -239,9 +239,9 @@ nav a.active,
 /* MAIN */
 
 .main-content {
-    margin-left: 300px;
+    margin-left: 280px;
     padding: 30px;
-    width: calc(100% - 300px);
+    width: calc(100% - 280px);
 
     height: 100vh;
     overflow-y: auto;
