@@ -617,3 +617,8 @@ body {
 .login-container h1 {
     margin-bottom: 50px;
 }
+
+/* Slightly increase sidebar menu text */
+.sidebar nav a {
+    font-size: 16px;
+}
