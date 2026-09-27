@@ -1854,7 +1854,7 @@ document.addEventListener(
                 startPolarSync();
 
             },
-            1000
+            1500
         );
 
     }
