@@ -242,7 +242,12 @@ def calculate_inventory_risk(
 def recalculate_inventory_risks(conn):
 
     inventory = conn.execute("""
-        SELECT *
+        SELECT
+            id,
+            quantity,
+            minimum_quantity,
+            daily_consumption,
+            risk_level
         FROM inventory
     """).fetchall()
 
@@ -255,17 +260,17 @@ def recalculate_inventory_risks(conn):
             item["daily_consumption"]
         )
 
-        conn.execute("""
-            UPDATE inventory
+        # Update only when risk level actually changes
+        if item["risk_level"] != risk:
 
-            SET risk_level = ?
-
-            WHERE id = ?
-        """, (
-            risk,
-            item["id"]
-        ))
-
+            conn.execute("""
+                UPDATE inventory
+                SET risk_level = ?
+                WHERE id = ?
+            """, (
+                risk,
+                item["id"]
+            ))
 
 # =========================================================
 # HOME
