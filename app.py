@@ -4388,15 +4388,13 @@ def resource_history():
     )
 
 # =========================================================
-# OFFLINE DATA API
+# OFFLINE DATA API - OPTIMIZED
 # =========================================================
 
 @app.route("/api/offline-data")
 def offline_data():
 
-    conn = get_db()
-
-    data = {}
+    conn = None
 
     table_mapping = {
         "stations": "stations",
@@ -4412,6 +4410,12 @@ def offline_data():
 
     try:
 
+        conn = get_db()
+
+        data = {}
+
+        # Reuse the same database connection
+        # for all offline tables.
         for local_store, database_table in table_mapping.items():
 
             rows = conn.execute(
@@ -4419,24 +4423,34 @@ def offline_data():
             ).fetchall()
 
             data[local_store] = [
-                dict(row) for row in rows
+                dict(row)
+                for row in rows
             ]
-
-        conn.close()
 
         return data
 
     except Exception as e:
 
-        print("Offline data API error:", e)
-
-        conn.close()
+        print(
+            "Offline data API error:",
+            e
+        )
 
         return {
             "error": "Unable to load offline data"
         }, 500
 
-    # =========================================================
+    finally:
+
+        if conn:
+
+            try:
+                conn.close()
+
+            except Exception:
+                pass
+
+# =========================================================
 # OFFLINE SYNC API
 # =========================================================
 
