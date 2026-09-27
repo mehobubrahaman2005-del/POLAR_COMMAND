@@ -619,7 +619,7 @@ body {
 }
 
 /* =========================================
-   FIXED SIDEBAR BRAND + SCROLLABLE MENU
+   FIXED BRAND + MAIN-STYLE SIDEBAR SCROLL
 ========================================= */
 
 .sidebar {
@@ -629,7 +629,20 @@ body {
     overflow: hidden;
 }
 
-/* POLAR COMMAND stays fixed */
 .sidebar .brand {
+    flex-shrink: 0;
+}
+
+.sidebar nav {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    /* Use browser/main scrollbar style */
+    scrollbar-width: auto;
+}
+
+.sidebar .sidebar-bottom {
     flex-shrink: 0;
 }
