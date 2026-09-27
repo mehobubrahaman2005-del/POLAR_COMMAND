@@ -633,30 +633,3 @@ body {
 .sidebar .brand {
     flex-shrink: 0;
 }
-
-/* Only navigation area scrolls */
-.sidebar nav {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* Keep logout fixed at bottom */
-.sidebar .sidebar-bottom {
-    flex-shrink: 0;
-}
-
-/* Optional: cleaner scrollbar */
-.sidebar nav::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar nav::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.20);
-    border-radius: 10px;
-}
-
-.sidebar nav::-webkit-scrollbar-track {
-    background: transparent;
-}
