@@ -1803,7 +1803,6 @@ async function startPolarSync() {
         );
 
         return;
-
     }
 
 
@@ -1819,9 +1818,18 @@ async function startPolarSync() {
      * 2. Download latest server data
      */
 
+
     await syncPendingChanges();
 
-    await syncServerDataToLocal();
+
+    /*
+     * Normal startup sync.
+     *
+     * If another page was opened recently,
+     * the full server download will be skipped.
+     */
+
+    await syncServerDataToLocal(false);
 
 
     console.log(
