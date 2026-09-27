@@ -618,19 +618,3 @@ body {
     margin-bottom: 50px;
 }
 
-/* ===============================
-   POLAR COMMAND BRAND
-================================ */
-
-.brand h2,
-.brand span {
-    font-size: 24px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.brand span {
-    display: block;
-    margin-top: 2px;
-}
