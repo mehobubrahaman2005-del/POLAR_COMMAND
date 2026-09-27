@@ -344,6 +344,7 @@ nav a.active,
 .stat-card p {
     color: #91a8ba;
     margin-bottom: 8px;
+    font-size: 15px;
 }
 
 .stat-card h2 {
